@@ -1,0 +1,21 @@
+<h2>Iris Türü Tahmin Et (Bonus +7 Puan)</h2>
+<form method="GET">
+    <input type="number" step="0.1" name="sepal_length" placeholder="Sepal Length" required>
+    <input type="number" step="0.1" name="sepal_width" placeholder="Sepal Width" required>
+    <input type="number" step="0.1" name="petal_length" placeholder="Petal Length" required>
+    <input type="number" step="0.1" name="petal_width" placeholder="Petal Width" required>
+    
+    <select name="algorithm">
+        <option value="logistic">Logistic Regression</option>
+        <option value="knn">K-Nearest Neighbors</option>
+        <option value="svc">Support Vector Machine</option>
+    </select>
+    
+    <button type="submit">Tahmin Et</button>
+</form>
+
+{% if prediction %}
+    <h3>Tahmin Edilen Tür: <b style="color: green;">{{ prediction|upper }}</b></h3>
+{% endif %}
+<br>
+<a href="{% url 'iris_list' %}">Listeye Dön</a>

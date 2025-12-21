@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h1>Yeni Iris Örneği Ekle</h1>
+    <form method="POST">
+        {% csrf_token %} {{ form.as_p }}  <button type="submit">Kaydet</button>
+    </form>
+    <br>
+    <a href="{% url 'iris_list' %}">Listeye Geri Dön</a>
+</body>
+</html>
