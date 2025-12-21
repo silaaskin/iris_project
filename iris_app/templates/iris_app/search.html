@@ -1,0 +1,22 @@
+{% extends 'iris_app/base.html' %}
+{% block content %}
+<h2>Gelişmiş Arama</h2>
+<form method="GET">
+    <input type="text" name="q" placeholder="Tür Ara">
+    <input type="number" step="0.1" name="min_sepal" placeholder="Min Sepal Length">
+    <input type="number" step="0.1" name="min_petal" placeholder="Min Petal Length">
+    <button type="submit">Filtrele</button>
+</form>
+<hr>
+{% if results %}
+    <h3>Sonuçlar ({{ results.count }})</h3>
+    <ul>
+        {% for plant in results %}
+            <li>{{ plant.species }} ({{ plant.sepal_length }} cm)</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Sonuç bulunamadı.</p>
+{% endif %}
+<a href="{% url 'iris_list' %}">Listeye Dön</a>
+{% endblock %}

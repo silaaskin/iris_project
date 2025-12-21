@@ -1,53 +1,50 @@
+{% extends 'iris_app/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Iris Listesi</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-    <header>
-        <h1>Iris Veri Yönetim Sistemi</h1>
-    </header>
 
-    <nav>
-        <a href="{% url 'iris_list' %}">Ana Sayfa</a>
-        <a href="{% url 'iris_create' %}">Yeni Kayıt</a>
-        <a href="{% url 'iris_predict' %}">Tür Tahmini</a>
-        <a href="/admin">Yönetim</a>
-    </nav>
+{% block content %}
+<h2>Iris Veri Listesi</h2>
 
-    <div class="container">
-        <div class="card">
-            <h2>Kayıtlı Iris Örnekleri</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tür</th>
-                        <th>Sepal L.</th>
-                        <th>Sepal W.</th>
-                        <th>İşlemler</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sample in samples %}
-                    <tr>
-                        <td>{{ sample.species }}</td>
-                        <td>{{ sample.sepal_length }}</td>
-                        <td>{{ sample.sepal_width }}</td>
-                        <td>
-                            <a href="{% url 'iris_update' pk=sample.pk %}">Düzenle</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd;">
+    <p>Bu proje <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI Iris Veri Seti</a> kullanılarak hazırlanmıştır.</p>
+</div>
 
-    <footer>
-        <p>Django Web Uygulaması Ödevi - 2025</p>
-    </footer>
-</body>
-</html>
+<div style="margin-bottom: 15px;">
+    <a href="{% url 'iris_search' %}" style="margin-right:10px;">🔍 Detaylı Arama</a>
+    <a href="{% url 'export_csv' %}" style="margin-right:10px;">⬇️ CSV İndir</a>
+    <a href="{% url 'import_csv' %}">⬆️ CSV Yükle</a>
+    <a href="{% url 'iris_create' %}" style="float:right; background:green; color:white; padding:5px 10px; text-decoration:none;">+ Yeni Kayıt</a>
+</div>
+
+<table border="1" style="width:100%; border-collapse: collapse; margin-top:10px;">
+    <thead>
+        <tr style="background:#eee;">
+            <th>Tür</th>
+            <th>Sepal L.</th>
+            <th>Petal L.</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sample in samples %}
+        <tr>
+            <td>{{ sample.species }}</td>
+            <td>{{ sample.sepal_length }}</td>
+            <td>{{ sample.petal_length }}</td>
+            <td>
+                {% if user.is_superuser or "Editor" in user.groups.all.0.name %}
+                    <a href="{% url 'iris_update' sample.pk %}">Düzenle</a> | 
+                    <a href="{% url 'iris_delete' sample.pk %}">Sil</a>
+                {% else %}
+                    <span style="color:gray;">Yetkisiz</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div style="margin-top: 30px;">
+    <h3>Bilgiler</h3>
+    <ul><li>Toplam Veri: {{ samples.count }}</li></ul>
+</div>
+{% endblock %}

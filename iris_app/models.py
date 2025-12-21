@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Migration dosyanla uyumlu olması için Laboratory ve IrisPlant kullanmalıyız.
 class Laboratory(models.Model):
     name = models.CharField(max_length=100, verbose_name="Laboratuvar Adı")
     city = models.CharField(max_length=50, verbose_name="Şehir")
