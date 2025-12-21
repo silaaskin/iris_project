@@ -1,26 +1,24 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-# 1. Model: Çiçeklerin kategorilerini tutar (Örn: Dağ Çiçekleri, Sera Çiçekleri)
-class Category(models.Model):
-    name = models.CharField(max_length=100) # Kategori adı
-    description = models.TextField()        # Açıklama
-    origin = models.CharField(max_length=100) # Kökeni
-    priority = models.IntegerField(default=1) # Önem sırası
-    is_active = models.BooleanField(default=True) # Aktif mi?
+# Migration dosyanla uyumlu olması için Laboratory ve IrisPlant kullanmalıyız.
+class Laboratory(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Laboratuvar Adı")
+    city = models.CharField(max_length=50, verbose_name="Şehir")
 
-    def _str_(self):
+    def __str__(self):
         return self.name
 
-# 2. Model: Iris verilerini tutan ana model
-class IrisSample(models.Model):
-    # İlişki: Her örnek bir kategoriye ait olmalı (Many-to-One)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+class IrisPlant(models.Model):
+    sepal_length = models.FloatField(verbose_name="Çanak Yaprak Uzunluğu (cm)")
+    sepal_width = models.FloatField(verbose_name="Çanak Yaprak Genişliği (cm)")
+    petal_length = models.FloatField(verbose_name="Taç Yaprak Uzunluğu (cm)")
+    petal_width = models.FloatField(verbose_name="Taç Yaprak Genişliği (cm)")
+    species = models.CharField(max_length=50, verbose_name="Tür", blank=True, null=True)
     
-    sepal_length = models.FloatField()
-    sepal_width = models.FloatField()
-    petal_length = models.FloatField()
-    petal_width = models.FloatField()
-    species = models.CharField(max_length=50) # Setosa, Versicolor, Virginica
+    lab = models.ForeignKey(Laboratory, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="İlgili Laboratuvar")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    def _str_(self):
+    def __str__(self):
         return f"{self.species} ({self.id})"
