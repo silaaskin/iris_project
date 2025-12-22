@@ -1,32 +1,40 @@
-<!-- login.html - MODERNLEŞTIRILMIŞ (BASE.HTML OVERRIDE) -->
+<!-- LOGIN.HTML - TEMIZ MODERN DİZAYN -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Iris Veri Yönetim Sistemi - Django Web Uygulaması">
-    <title>Giriş Yap - Iris Sistemi</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Sign In - Iris System</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            box-sizing: border-box;
         }
 
-        .auth-container {
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --border: #e5e7eb;
+            --text: #374151;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 1.25rem;
         }
 
         .auth-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 1rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             max-width: 450px;
@@ -46,225 +54,225 @@
         }
 
         .auth-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 40px 30px 30px;
+            padding: 2.5rem 2rem 2rem;
             text-align: center;
         }
 
         .auth-header h1 {
-            margin: 0 0 10px 0;
-            font-size: 28px;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.75rem;
             color: white;
+            font-weight: 700;
         }
 
         .auth-header p {
             margin: 0;
-            font-size: 14px;
+            font-size: 0.875rem;
             opacity: 0.9;
             color: white;
         }
 
-        .auth-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            display: block;
-        }
-
         .auth-body {
-            padding: 40px 30px;
+            padding: 2rem;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 14px;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.825rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .auth-form-input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            font-size: 15px;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             font-family: inherit;
             height: 50px;
-            box-sizing: border-box;
         }
 
         .auth-form-input:focus {
             outline: none;
-            border-color: #3498db;
-            background-color: #f0f7ff;
-            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
-        }
-
-        .auth-form-input::placeholder {
-            color: #bdc3c7;
+            border-color: var(--primary-light);
+            background: #f0f9ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .error-message {
-            color: #e74c3c;
-            font-size: 13px;
-            margin-top: 8px;
-            padding: 8px 12px;
-            background: #fadbd8;
-            border-left: 3px solid #e74c3c;
-            border-radius: 4px;
+            color: var(--danger);
+            font-size: 0.8125rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #fef2f2;
+            border-left: 3px solid var(--danger);
+            border-radius: 0.25rem;
         }
 
         .btn-login {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 10px;
+            margin-top: 0.75rem;
         }
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
         }
 
         .auth-footer {
-            padding: 25px 30px;
+            padding: 1.5rem 2rem;
             text-align: center;
-            border-top: 1px solid #ecf0f1;
-            background: #f8f9fa;
+            border-top: 1px solid var(--border);
+            background: #f9fafb;
         }
 
         .auth-footer p {
             margin: 0;
-            color: #555;
-            font-size: 14px;
+            color: var(--text);
+            font-size: 0.875rem;
         }
 
         .auth-footer a {
-            color: #667eea;
+            color: var(--primary-light);
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
         }
 
         .auth-footer a:hover {
-            color: #764ba2;
-            text-decoration: underline;
+            color: var(--primary-dark);
         }
 
         .form-errors {
-            background: #fadbd8;
-            color: #922b21;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #e74c3c;
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--danger);
         }
 
         .form-errors li {
-            margin-bottom: 5px;
-            font-size: 13px;
+            margin-bottom: 0.5rem;
+            font-size: 0.8125rem;
         }
 
         .success-message {
-            background: #d5f4e6;
-            color: #196f3d;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #27ae60;
+            background: #f0fdf4;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #10b981;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                border-radius: 0.75rem;
+            }
+
+            .auth-header {
+                padding: 2rem 1.5rem 1.5rem;
+            }
+
+            .auth-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .auth-body {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <span class="auth-icon">🔐</span>
-            <h1>Giriş Yap</h1>
-            <p>Iris Veri Yönetim Sistemi</p>
-        </div>
+<div class="auth-card">
+    <div class="auth-header">
+        <h1>Sign In</h1>
+        <p>Iris Data Management System</p>
+    </div>
 
-        <div class="auth-body">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="success-message">{{ message }}</div>
-                {% endfor %}
+    <div class="auth-body">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </div>
             {% endif %}
 
-            <form method="POST" novalidate>
-                {% csrf_token %}
-
-                {% if form.non_field_errors %}
-                    <div class="form-errors">
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </div>
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                <input 
+                    type="text" 
+                    class="auth-form-input" 
+                    id="id_username"
+                    name="username" 
+                    placeholder="Enter your username"
+                    required
+                >
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <div class="error-message">{{ error }}</div>
+                    {% endfor %}
                 {% endif %}
+            </div>
 
-                <div class="form-group">
-                    <label for="id_username">👤 Kullanıcı Adı</label>
-                    <input 
-                        type="text" 
-                        class="auth-form-input" 
-                        id="id_username"
-                        name="username" 
-                        placeholder="Kullanıcı adınız"
-                        required
-                    >
-                    {% if form.username.errors %}
-                        {% for error in form.username.errors %}
-                            <div class="error-message">{{ error }}</div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input 
+                    type="password" 
+                    class="auth-form-input" 
+                    id="id_password"
+                    name="password" 
+                    placeholder="Enter your password"
+                    required
+                >
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
 
-                <div class="form-group">
-                    <label for="id_password">🔑 Şifre</label>
-                    <input 
-                        type="password" 
-                        class="auth-form-input" 
-                        id="id_password"
-                        name="password" 
-                        placeholder="Şifreniz"
-                        required
-                    >
-                    {% if form.password.errors %}
-                        {% for error in form.password.errors %}
-                            <div class="error-message">{{ error }}</div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
+            <button type="submit" class="btn-login">Sign In</button>
+        </form>
+    </div>
 
-                <button type="submit" class="btn-login">✅ Giriş Yap</button>
-            </form>
-        </div>
-
-        <div class="auth-footer">
-            <p>Hesabınız yok mu? <a href="{% url 'register' %}">Kayıt olmak için tıklayın</a></p>
-        </div>
+    <div class="auth-footer">
+        <p>Don't have an account? <a href="{% url 'register' %}">Create one</a></p>
     </div>
 </div>
 

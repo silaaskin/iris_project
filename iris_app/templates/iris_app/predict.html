@@ -350,16 +350,16 @@
 
 {% block content %}
 
-<div class="prediction-container">
+    <div class="prediction-container">
     <!-- BAŞLIK -->
     <div class="predict-header">
-        <h1>🤖 Makine Öğrenmesi - Iris Türü Tahmini</h1>
-        <p style="color: #7f8c8d; font-size: 16px;">Scikit-learn kütüphanesi kullanarak Iris bitkisinin türünü tahmin edin</p>
+        <h1>Machine Learning - Iris Species Prediction</h1>
+        <p style="color: #7f8c8d; font-size: 16px;">Predict iris plant species using Scikit-learn algorithms</p>
     </div>
 
     <!-- BİLGİ KUTUSU -->
     <div class="info-section">
-        <h3>📋 Nasıl Kullanılır?</h3>
+        <h3>How to Use</h3>
         <ol style="margin: 0; padding-left: 20px;">
             <li>Iris bitkisinin fiziksel ölçümlerini santimetre cinsinden girin</li>
             <li>Tahmin algoritmasını seçin (Logistic, KNN veya SVM)</li>
@@ -367,9 +367,9 @@
         </ol>
     </div>
 
-    <!-- TAHMIN FORMU -->
+                <!-- TAHMIN FORMU -->
     <div class="predict-form-wrapper">
-        <h2 style="margin-top: 0; color: var(--primary-color);">📏 Ölçümleri Girin</h2>
+        <h2 style="margin-top: 0; color: var(--primary-color);">Enter Measurements</h2>
         
         <form method="POST" novalidate>
             {% csrf_token %}
@@ -385,7 +385,7 @@
             <!-- ÖLÇÜM GİRİŞLERİ -->
             <div class="input-grid">
                 <div class="form-group">
-                    <label for="id_sepal_length">📏 Sepal Uzunluğu (cm)</label>
+                    <label for="id_sepal_length">Sepal Length (cm)</label>
                     <input 
                         type="number" 
                         class="form-input" 
@@ -400,7 +400,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="id_sepal_width">📏 Sepal Genişliği (cm)</label>
+                    <label for="id_sepal_width">Sepal Width (cm)</label>
                     <input 
                         type="number" 
                         class="form-input" 
@@ -415,7 +415,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="id_petal_length">🌼 Petal Uzunluğu (cm)</label>
+                    <label for="id_petal_length">Petal Length (cm)</label>
                     <input 
                         type="number" 
                         class="form-input" 
@@ -430,7 +430,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="id_petal_width">🌼 Petal Genişliği (cm)</label>
+                    <label for="id_petal_width">Petal Width (cm)</label>
                     <input 
                         type="number" 
                         class="form-input" 
@@ -447,7 +447,7 @@
 
             <!-- ALGORİTMA SEÇİMİ -->
             <div class="algorithm-selector">
-                <h3>🔬 Tahmin Algoritmasını Seçin</h3>
+                <h3>Select Prediction Algorithm</h3>
                 <div class="radio-options">
                     <div class="radio-option">
                         <input 
@@ -485,7 +485,7 @@
             </div>
 
             <!-- GÖNDER BUTONU -->
-            <button type="submit" class="btn-predict">✅ Tahmin Yap</button>
+            <button type="submit" class="btn-predict">Submit Prediction</button>
         </form>
     </div>
 
@@ -493,14 +493,14 @@
     {% if prediction %}
         <div class="prediction-result">
             <div class="result-title">
-                <h2>✨ Tahmin Sonucu</h2>
+                <h2>Prediction Result</h2>
             </div>
 
             <div class="result-species">
                 <div class="species-name">{{ prediction|upper }}</div>
                 {% if algorithm_name %}
                     <div class="algorithm-info">
-                        <strong>Kullanılan Algoritma:</strong> {{ algorithm_name }}
+                        <strong>Algorithm Used:</strong> {{ algorithm_name }}
                     </div>
                 {% endif %}
             </div>
@@ -508,7 +508,7 @@
             <!-- GÜVEN SKORU -->
             {% if confidence %}
                 <div class="confidence-container">
-                    <div class="confidence-label">📊 Güven Skoru</div>
+                    <div class="confidence-label">Confidence Score</div>
                     <div class="confidence-bar">
                         <div class="confidence-fill" id="confidence-fill" data-confidence="{{ confidence }}">
                             <span id="confidence-text">{{ confidence }}%</span>
@@ -529,40 +529,37 @@
 
         <!-- İRİS TÜRLERİ BİLGİSİ -->
         <div class="info-section">
-            <h3>🌿 Iris Türleri Hakkında</h3>
+            <h3>About Iris Species</h3>
             <ul class="species-info-list">
                 <li>
-                    <span class="species-icon">🌸</span>
-                    <strong>Iris Setosa:</strong> En küçük türüdür. Dar yaprakları ve kompakt yapısı ile tanınır. 
-                    Sepal uzunluğu 4.3-5.8 cm arasında değişir.
+                    <span class="species-icon"></span>
+                    <strong>Iris Setosa:</strong> The smallest species. Characterized by narrow leaves and compact structure. Sepal length ranges from 4.3-5.8 cm.
                 </li>
                 <li>
-                    <span class="species-icon">🌺</span>
-                    <strong>Iris Versicolor:</strong> Orta boyutlu türdür. Setosa ile virginica arasında özelliklere sahiptir. 
-                    Sepal uzunluğu 5.9-7.0 cm arasında değişir.
+                    <span class="species-icon"></span>
+                    <strong>Iris Versicolor:</strong> Medium-sized species. Has characteristics between setosa and virginica. Sepal length ranges from 5.9-7.0 cm.
                 </li>
                 <li>
-                    <span class="species-icon">🌷</span>
-                    <strong>Iris Virginica:</strong> En büyük türüdür. Geniş yaprakları ve uzun sepal/petal'leri ile ayırt edilir. 
-                    Sepal uzunluğu 6.3-7.9 cm arasında değişir.
+                    <span class="species-icon"></span>
+                    <strong>Iris Virginica:</strong> The largest species. Distinguished by wide leaves and long sepal/petal measurements. Sepal length ranges from 6.3-7.9 cm.
                 </li>
             </ul>
         </div>
 
         <!-- HIZLI BAĞLANTILAR -->
         <div class="quick-links">
-            <a href="{% url 'iris_list' %}" class="quick-link-btn">📊 Tüm Örnekler</a>
-            <a href="{% url 'iris_search' %}" class="quick-link-btn">🔍 Arama Yap</a>
-            <a href="{% url 'iris_predict' %}" class="quick-link-btn">🔄 Yeni Tahmin</a>
+            <a href="{% url 'iris_list' %}" class="quick-link-btn">All Samples</a>
+            <a href="{% url 'iris_search' %}" class="quick-link-btn">Search</a>
+            <a href="{% url 'iris_predict' %}" class="quick-link-btn">New Prediction</a>
         </div>
     {% else %}
         <!-- BAŞ TASLAĞI -->
         <div class="info-section">
-            <h3>💡 Ek Bilgiler</h3>
+            <h3>Algorithm Information</h3>
             <ul style="margin: 0; padding-left: 20px;">
-                <li><strong>Logistic Regression:</strong> Doğrusal tahmin modeli, hızlı ve basit</li>
-                <li><strong>K-Nearest Neighbors:</strong> Komşu tabanlı sınıflandırma, esnek yapı</li>
-                <li><strong>Support Vector Machine:</strong> Yüksek boyutlu uzayda sınıflandırma, güçlü model</li>
+                <li><strong>Logistic Regression:</strong> Linear prediction model, fast and simple</li>
+                <li><strong>K-Nearest Neighbors:</strong> Neighbor-based classification, flexible approach</li>
+                <li><strong>Support Vector Machine:</strong> High-dimensional space classification, powerful model</li>
             </ul>
         </div>
     {% endif %}

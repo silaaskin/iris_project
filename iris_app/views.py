@@ -3,19 +3,17 @@ import numpy as np
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-# GÜVENLİK İÇİN user_passes_test EKLENDİ:
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q
-from .forms import IrisForm, RegisterForm
+from .forms import IrisForm, RegisterForm, IrisSearchForm, IrisImportForm, IrisPredictionForm
 from .models import IrisPlant, Laboratory
 
 # ============= YETKİ KONTROLÜ (HELPER) =============
 def is_editor_check(user):
     """Kullanıcı Admin mi veya 'Editor' grubunda mı?"""
-    # is_superuser admin demektir. Gruplarda 'Editor' var mı bakar.
     return user.is_superuser or user.groups.filter(name='Editor').exists()
 
 # ============= AUTHENTICATION VIEWS =============
@@ -77,15 +75,13 @@ def iris_list(request):
     """Ana Iris listesi sayfası"""
     samples = IrisPlant.objects.all().select_related('lab', 'created_by').order_by('-created_at')
     
-    # Kullanıcının yetkisini kontrol edip şablona gönderiyoruz
     is_editor = is_editor_check(request.user)
 
     context = {
         'samples': samples,
         'total_count': samples.count(),
-        # Hata almamak için güvenli sözlük çevrimi
         'species_types': dict(IrisPlant.SPECIES_CHOICES) if hasattr(IrisPlant, 'SPECIES_CHOICES') else {},
-        'is_editor': is_editor, # Şablonda butonları gizlemek için
+        'is_editor': is_editor,
     }
     
     return render(request, 'iris_app/iris_list.html', context)
@@ -94,7 +90,7 @@ def iris_list(request):
 # ============= IRIS CRUD VIEWS =============
 
 @login_required(login_url='login')
-@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
+@user_passes_test(is_editor_check, login_url='login')
 def iris_create(request):
     """Yeni Iris kaydı ekleme sayfası"""
     if request.method == "POST":
@@ -124,12 +120,10 @@ def iris_detail(request, pk):
     """Iris detayını görüntüle"""
     plant = get_object_or_404(IrisPlant, pk=pk)
     
-    # Detay sayfasında da editörlük kontrolü için
     is_editor = is_editor_check(request.user)
     
     context = {
         'plant': plant,
-        # Düzenleyebilmesi için: Hem Editör olmalı, hem de (Kendi kaydı VEYA Admin olmalı)
         'can_edit': is_editor and (plant.created_by == request.user or request.user.is_superuser)
     }
     
@@ -137,12 +131,11 @@ def iris_detail(request, pk):
 
 
 @login_required(login_url='login')
-@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
+@user_passes_test(is_editor_check, login_url='login')
 def iris_update(request, pk):
     """Iris kaydını düzenleme sayfası"""
     plant = get_object_or_404(IrisPlant, pk=pk)
     
-    # Sadece oluşturan kişi veya superuser düzenleyebilir
     if plant.created_by != request.user and not request.user.is_superuser:
         messages.error(request, 'Bu kaydı düzenleme yetkiniz yok.')
         return redirect('iris_list')
@@ -169,12 +162,11 @@ def iris_update(request, pk):
 
 
 @login_required(login_url='login')
-@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
+@user_passes_test(is_editor_check, login_url='login')
 def iris_delete(request, pk):
     """Iris kaydını silme sayfası"""
     plant = get_object_or_404(IrisPlant, pk=pk)
     
-    # Sadece oluşturan kişi veya superuser silebilir
     if plant.created_by != request.user and not request.user.is_superuser:
         messages.error(request, 'Bu kaydı silme yetkiniz yok.')
         return redirect('iris_list')
@@ -194,59 +186,42 @@ def iris_delete(request, pk):
 @login_required(login_url='login')
 def iris_search(request):
     """Gelişmiş arama sayfası - 3+ alan"""
+    form = IrisSearchForm(request.GET or None)
     results = IrisPlant.objects.all().select_related('lab', 'created_by')
     search_performed = False
     
-    # Arama kriterleri
-    species = request.GET.get('species', '')
-    min_sepal_length = request.GET.get('min_sepal_length', '')
-    max_sepal_length = request.GET.get('max_sepal_length', '')
-    min_petal_length = request.GET.get('min_petal_length', '')
-    max_petal_length = request.GET.get('max_petal_length', '')
-    lab_id = request.GET.get('lab', '')
-    
-    # Filtreleme
-    if any([species, min_sepal_length, max_sepal_length, min_petal_length, max_petal_length, lab_id]):
+    if form.is_valid():
         search_performed = True
         
+        species = form.cleaned_data.get('species')
         if species:
             results = results.filter(species=species)
         
+        min_sepal_length = form.cleaned_data.get('min_sepal_length')
         if min_sepal_length:
-            try:
-                results = results.filter(sepal_length__gte=float(min_sepal_length))
-            except ValueError:
-                pass
-        # ... Diğer filtreler aynı kalabilir ...
+            results = results.filter(sepal_length__gte=min_sepal_length)
+        
+        max_sepal_length = form.cleaned_data.get('max_sepal_length')
         if max_sepal_length:
-            try:
-                results = results.filter(sepal_length__lte=float(max_sepal_length))
-            except ValueError:
-                pass
+            results = results.filter(sepal_length__lte=max_sepal_length)
         
+        min_petal_length = form.cleaned_data.get('min_petal_length')
         if min_petal_length:
-            try:
-                results = results.filter(petal_length__gte=float(min_petal_length))
-            except ValueError:
-                pass
+            results = results.filter(petal_length__gte=min_petal_length)
         
+        max_petal_length = form.cleaned_data.get('max_petal_length')
         if max_petal_length:
-            try:
-                results = results.filter(petal_length__lte=float(max_petal_length))
-            except ValueError:
-                pass
+            results = results.filter(petal_length__lte=max_petal_length)
         
-        if lab_id:
-            results = results.filter(lab_id=lab_id)
+        lab = form.cleaned_data.get('lab')
+        if lab:
+            results = results.filter(lab=lab)
     
     context = {
+        'form': form,
         'results': results,
         'result_count': results.count(),
         'search_performed': search_performed,
-        'species_choices': IrisPlant.SPECIES_CHOICES if hasattr(IrisPlant, 'SPECIES_CHOICES') else {},
-        'labs': Laboratory.objects.all(),
-        'selected_species': species,
-        'selected_lab': lab_id,
     }
     
     return render(request, 'iris_app/search.html', context)
@@ -255,53 +230,59 @@ def iris_search(request):
 # ============= IMPORT/EXPORT VIEWS =============
 
 @login_required(login_url='login')
-@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
+@user_passes_test(is_editor_check, login_url='login')
 def import_iris_csv(request):
     """CSV dosyasını içe aktarma"""
-    if request.method == "POST" and request.FILES.get('csv_file'):
-        csv_file = request.FILES['csv_file']
-        
-        try:
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
+    if request.method == "POST":
+        form = IrisImportForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = form.cleaned_data['csv_file']
             
-            imported_count = 0
-            error_count = 0
-            
-            species_dict = dict(IrisPlant.SPECIES_CHOICES) if hasattr(IrisPlant, 'SPECIES_CHOICES') else {}
+            try:
+                decoded_file = csv_file.read().decode('utf-8').splitlines()
+                reader = csv.DictReader(decoded_file)
+                
+                imported_count = 0
+                error_count = 0
+                
+                species_dict = dict(IrisPlant.SPECIES_CHOICES) if hasattr(IrisPlant, 'SPECIES_CHOICES') else {}
 
-            for row in reader:
-                try:
-                    species = row.get('species', '').lower().strip()
-                    if species_dict and species not in species_dict.keys():
+                for row in reader:
+                    try:
+                        species = row.get('species', '').lower().strip()
+                        if species_dict and species not in species_dict.keys():
+                            error_count += 1
+                            continue
+                        
+                        IrisPlant.objects.create(
+                            species=species,
+                            sepal_length=float(row.get('sepal_length', 0)),
+                            sepal_width=float(row.get('sepal_width', 0)),
+                            petal_length=float(row.get('petal_length', 0)),
+                            petal_width=float(row.get('petal_width', 0)),
+                            lab_id=row.get('lab_id') if row.get('lab_id') else None,
+                            created_by=request.user
+                        )
+                        imported_count += 1
+                    except (ValueError, KeyError) as e:
                         error_count += 1
                         continue
-                    
-                    IrisPlant.objects.create(
-                        species=species,
-                        sepal_length=float(row.get('sepal_length', 0)),
-                        sepal_width=float(row.get('sepal_width', 0)),
-                        petal_length=float(row.get('petal_length', 0)),
-                        petal_width=float(row.get('petal_width', 0)),
-                        lab_id=row.get('lab_id') if row.get('lab_id') else None,
-                        created_by=request.user
-                    )
-                    imported_count += 1
-                except (ValueError, KeyError) as e:
-                    error_count += 1
-                    continue
+                
+                if imported_count > 0:
+                    messages.success(request, f'{imported_count} Iris örneği içe aktarıldı.')
+                if error_count > 0:
+                    messages.warning(request, f'{error_count} satır hata nedeniyle atlandı.')
+                
+                return redirect('iris_list')
             
-            if imported_count > 0:
-                messages.success(request, f'{imported_count} Iris örneği içe aktarıldı.')
-            if error_count > 0:
-                messages.warning(request, f'{error_count} satır hata nedeniyle atlandı.')
-            
-            return redirect('iris_list')
-        
-        except Exception as e:
-            messages.error(request, f'Dosya işlenirken hata oluştu: {str(e)}')
+            except Exception as e:
+                messages.error(request, f'Dosya işlenirken hata oluştu: {str(e)}')
+        else:
+            messages.error(request, 'Lütfen geçerli bir CSV dosyası yükleyin.')
+    else:
+        form = IrisImportForm()
     
-    return render(request, 'iris_app/import.html')
+    return render(request, 'iris_app/import.html', {'form': form})
 
 
 def export_iris_csv(request):
@@ -315,7 +296,6 @@ def export_iris_csv(request):
     
     for plant in IrisPlant.objects.all().select_related('lab'):
         lab_name = plant.lab.name if plant.lab else "N/A"
-        # get_species_display metodu varsa kullan, yoksa direkt species alanını al
         species_display = plant.get_species_display() if hasattr(plant, 'get_species_display') else plant.species
         
         writer.writerow([
@@ -355,40 +335,33 @@ def iris_predict(request):
             petal_width = float(request.POST.get('petal_width', 0))
             algorithm = request.POST.get('algorithm', 'logistic')
             
-            # Sklearn iris veri setini yükle ve model eğit
             iris_data = load_iris()
             X, y = iris_data.data, iris_data.target
             
-            # Verileri normalize et
             scaler = StandardScaler()
             X_scaled = scaler.fit_transform(X)
             
-            # Seçilen algoritmayla model oluştur ve eğit
             if algorithm == 'knn':
                 model = KNeighborsClassifier(n_neighbors=3)
                 algorithm_name = 'K-Nearest Neighbors (KNN)'
             elif algorithm == 'svc':
                 model = SVC(probability=True)
                 algorithm_name = 'Support Vector Machine (SVM)'
-            else:  # logistic
+            else:
                 model = LogisticRegression(max_iter=200, random_state=42)
                 algorithm_name = 'Logistic Regression'
             
             model.fit(X_scaled, y)
             
-            # Kullanıcı verilerini normalize et ve tahmin yap
             user_data = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
             user_data_scaled = scaler.transform(user_data)
             
             prediction_idx = model.predict(user_data_scaled)[0]
             prediction = iris_data.target_names[prediction_idx]
             
-            # Güven skorunu hesapla (eğer mevcut ise)
             if hasattr(model, 'predict_proba'):
-                # prob: 0.0 - 1.0 arası => yüzdeye çevir ve tam sayı yap
                 prob = float(max(model.predict_proba(user_data_scaled)[0]))
                 confidence = int(round(prob * 100))
-                # güvenlik: 0-100 aralığında sınırlama (clamp)
                 confidence = max(0, min(100, confidence))
             
         except ValueError:
@@ -398,7 +371,6 @@ def iris_predict(request):
     
     context = {
         'prediction': prediction,
-        # gönderilen değer ya int(0-100) ya None olacak
         'confidence': confidence if confidence is not None else None,
         'algorithm_name': algorithm_name,
         'error_message': error_message,
