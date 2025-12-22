@@ -1,1 +1,68 @@
-<h1>Giriş Yap</h1><form method="post">{% csrf_token %}{{ form.as_p }}<button>Giriş</button></form>
+<!-- login.html -->
+{% extends 'iris_app/base.html' %}
+{% load static %}
+
+{% block title %}Giriş Yap - Iris Sistemi{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 500px; margin: 50px auto;">
+    <div class="card">
+        <div class="card-header">
+            <h1 style="margin: 0;">🔐 Giriş Yap</h1>
+        </div>
+
+        <div class="card-body">
+            <p>Hesabınıza giriş yaparak Iris veri sisteminize erişin.</p>
+
+            <form method="POST" novalidate>
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username">Kullanıcı Adı</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="div-danger">
+                            {% for error in form.username.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Şifre</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="div-danger">
+                            {% for error in form.password.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="div-danger">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">✅ Giriş Yap</button>
+                </div>
+            </form>
+
+            <hr>
+
+            <p style="text-align: center;">
+                Henüz hesabınız yok mu? 
+                <a href="{% url 'register' %}">Kayıt olmak için tıklayın</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

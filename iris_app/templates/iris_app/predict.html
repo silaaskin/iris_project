@@ -1,21 +1,146 @@
-<h2>Iris Türü Tahmin Et (Bonus +7 Puan)</h2>
-<form method="GET">
-    <input type="number" step="0.1" name="sepal_length" placeholder="Sepal Length" required>
-    <input type="number" step="0.1" name="sepal_width" placeholder="Sepal Width" required>
-    <input type="number" step="0.1" name="petal_length" placeholder="Petal Length" required>
-    <input type="number" step="0.1" name="petal_width" placeholder="Petal Width" required>
-    
-    <select name="algorithm">
-        <option value="logistic">Logistic Regression</option>
-        <option value="knn">K-Nearest Neighbors</option>
-        <option value="svc">Support Vector Machine</option>
-    </select>
-    
-    <button type="submit">Tahmin Et</button>
-</form>
+<!-- predict.html (ML BONUS) -->
+{% extends 'iris_app/base.html' %}
+{% load static %}
 
+{% block title %}ML Tahmin - Iris Sistemi{% endblock %}
+
+{% block content %}
+
+<h1>🤖 Makine Öğrenmesi - Iris Türü Tahminleme</h1>
+
+<div class="div-info">
+    <h3>Scikit-learn ile Tahmin</h3>
+    <p>Lütfen Iris bitkisinin fiziksel özelliklerini girerek tahmin algoritmasını seçiniz. Sistem makine öğrenmesi modeli kullanarak türü tahmin edecektir.</p>
+</div>
+
+<!-- ============= TAHMİN FORMU ============= -->
+<div class="card">
+    <div class="card-header">
+        <h2>Ölçümleri Girin</h2>
+    </div>
+
+    <div class="card-body">
+        <form method="POST" novalidate>
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                
+                <div class="form-group">
+                    <label for="id_sepal_length">{{ form.sepal_length.label }}</label>
+                    {{ form.sepal_length }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_sepal_width">{{ form.sepal_width.label }}</label>
+                    {{ form.sepal_width }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_petal_length">{{ form.petal_length.label }}</label>
+                    {{ form.petal_length }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_petal_width">{{ form.petal_width.label }}</label>
+                    {{ form.petal_width }}
+                </div>
+
+            </div>
+
+            <!-- ============= ALGORİTMA SEÇİMİ ============= -->
+            <div class="form-group" style="margin: 30px 0;">
+                <label style="margin-bottom: 15px; display: block;">{{ form.algorithm.label }}</label>
+                <div class="radio-group">
+                    {% for radio_id, radio_value, radio_label in form.algorithm %}
+                        <label>
+                            <input type="radio" name="algorithm" value="{{ radio_value }}" id="{{ radio_id }}" required>
+                            <span style="margin-left: 8px; font-weight: 500;">{{ radio_label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if error_message %}
+                <div class="div-danger">
+                    <p>{{ error_message }}</p>
+                </div>
+            {% endif %}
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-success">✅ Tahmin Yap</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============= TAHMİN SONUÇLARI ============= -->
 {% if prediction %}
-    <h3>Tahmin Edilen Tür: <b style="color: green;">{{ prediction|upper }}</b></h3>
+    <div style="margin-top: 30px;">
+        <div class="div-success">
+            <h2>✨ Tahmin Sonucu</h2>
+            <div style="padding: 20px; background: white; border-radius: 8px; margin-top: 15px;">
+                <h3 style="color: var(--success-color); font-size: 24px;">{{ prediction|upper }}</h3>
+                {% if algorithm_name %}
+                    <p><strong>Kullanılan Algoritma:</strong> {{ algorithm_name }}</p>
+                {% endif %}
+                {% if confidence %}
+                        <p><strong>Güven Skoru:</strong> <span style="color: var(--success-color); font-weight: bold;">{{ confidence|default:'0'|floatformat:0 }}%</span></p>
+div style="background: #ecf0f1; height: 30px; border-radius: 4px; overflow: hidden; margin: 10px 0;">
+    <div class="progress-inner" data-width="{{ confidence|default:'0'|floatformat:0 }}%">
+        <!-- içerik metni JS ile konulacak -->
+    </div>
+</div>
+
+<style>
+/* küçük stil — istersen global CSS'e taşı */
+.progress-inner{
+  background: var(--success-color);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  width: 0; /* başlangıç */
+  transition: width 300ms ease;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const bar = document.querySelector('.progress-inner[data-width]');
+  if(!bar) return;
+  const w = bar.getAttribute('data-width') || '0%';
+  bar.style.width = w;
+  bar.textContent = w;
+});
+</script>
+                    {% endif %}
+            </div>
+        </div>
+
+        <!-- ============= İRİS TÜRÜ HAKKINDA BİLGİ ============= -->
+        <div class="div-highlight" style="margin-top: 20px;">
+            <h3>📚 Iris Türleri Hakkında</h3>
+            <ul>
+                <li><strong>Iris Setosa:</strong> Küçük boyutlu, dar yapraklı Iris türüdür.</li>
+                <li><strong>Iris Versicolor:</strong> Orta boyutlu, yaprakları setosa ile virginica arasındadır.</li>
+                <li><strong>Iris Virginica:</strong> En büyük boyutlu, geniş yapraklı Iris türüdür.</li>
+            </ul>
+        </div>
+    </div>
 {% endif %}
-<br>
-<a href="{% url 'iris_list' %}">Listeye Dön</a>
+
+<!-- ============= ALT BAĞLANTILAR ============= -->
+<div class="div-section" style="margin-top: 30px;">
+    <h2>🔗 Hızlı Bağlantılar</h2>
+    <ol>
+        <li><a href="{% url 'iris_list' %}">Tüm Iris Örnekleri</a></li>
+        <li><a href="{% url 'iris_search' %}">Arama Yapın</a></li>
+        <li><a href="{% url 'iris_create' %}">Yeni Örnek Ekle</a></li>
+        <li><a href="https://scikit-learn.org/" target="_blank">Scikit-learn Dokumentasyonu</a></li>
+    </ol>
+</div>
+
+{% endblock %}

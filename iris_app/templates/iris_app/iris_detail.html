@@ -1,0 +1,122 @@
+<!-- iris_detail.html -->
+{% extends 'iris_app/base.html' %}
+{% load static %}
+
+{% block title %}Iris Detayı - Yönetim Sistemi{% endblock %}
+
+{% block content %}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>📋 Iris Örneği Detayları</h1>
+    {% if can_edit %}
+        <div class="btn-group">
+            <a href="{% url 'iris_update' plant.pk %}" class="btn btn-info">✏️ Düzenle</a>
+            <a href="{% url 'iris_delete' plant.pk %}" class="btn btn-danger">🗑️ Sil</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin: 20px 0;">
+            
+            <!-- ============= TÜR BİLGİSİ ============= -->
+            <div class="div-section">
+                <h3>🌿 Tür Bilgisi</h3>
+                <table>
+                    <tr>
+                        <td style="font-weight: bold;">Tür Adı:</td>
+                        <td>{{ plant.get_species_display }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Tür Kodu:</td>
+                        <td><code>{{ plant.species }}</code></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- ============= ÖLÇÜMLER ============= -->
+            <div class="div-section">
+                <h3>📏 Fiziksel Ölçümler (cm)</h3>
+                <table>
+                    <tr>
+                        <td style="font-weight: bold;">Sepal Uzunluğu:</td>
+                        <td><strong>{{ plant.sepal_length }}</strong> cm</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Sepal Genişliği:</td>
+                        <td><strong>{{ plant.sepal_width }}</strong> cm</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Petal Uzunluğu:</td>
+                        <td><strong>{{ plant.petal_length }}</strong> cm</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Petal Genişliği:</td>
+                        <td><strong>{{ plant.petal_width }}</strong> cm</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- ============= LABORATUVAr BİLGİSİ ============= -->
+            <div class="div-section">
+                <h3>🏢 Laboratuvar Bilgisi</h3>
+                {% if plant.lab %}
+                    <table>
+                        <tr>
+                            <td style="font-weight: bold;">Laboratuvar:</td>
+                            <td>{{ plant.lab.name }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Şehir:</td>
+                            <td>{{ plant.lab.city }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Telefon:</td>
+                            <td>{{ plant.lab.phone|default:"N/A" }}</td>
+                        </tr>
+                    </table>
+                {% else %}
+                    <p style="color: #999;">Laboratuvar bilgisi bulunmamaktadır.</p>
+                {% endif %}
+            </div>
+
+            <!-- ============= SISTEM BİLGİLERİ ============= -->
+            <div class="div-section">
+                <h3>⚙️ Sistem Bilgileri</h3>
+                <table>
+                    <tr>
+                        <td style="font-weight: bold;">Oluşturan:</td>
+                        <td>{{ plant.created_by.get_full_name|default:plant.created_by.username }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Oluşturulma:</td>
+                        <td>{{ plant.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Son Güncelleme:</td>
+                        <td>{{ plant.updated_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <a href="{% url 'iris_list' %}" class="btn">⬅️ Listeye Dön</a>
+        {% if can_edit %}
+            <a href="{% url 'iris_update' plant.pk %}" class="btn btn-info">✏️ Düzenle</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ============= BENZEr ÖRNEKLEr ============= -->
+<div class="div-section" style="margin-top: 30px;">
+    <h2>🔄 Benzer Iris Örnekleri</h2>
+    {% with similar=plant|dictsort:"petal_length" %}
+        <p>Bu tür ile ilgili diğer örnekleri görmek için <a href="{% url 'iris_search' %}?species={{ plant.species }}">arama</a> yapabilirsiniz.</p>
+    {% endwith %}
+</div>
+
+{% endblock %}

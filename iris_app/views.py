@@ -2,164 +2,392 @@ import csv
 import numpy as np
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.db.models import Q
 from .forms import IrisForm, RegisterForm
-from .models import IrisPlant
+from .models import IrisPlant, Laboratory
 
-# ML Kütüphaneleri
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.datasets import load_iris
+# ============= AUTHENTICATION VIEWS =============
 
-# API Kütüphaneleri
-from rest_framework import viewsets, serializers
+def register_view(request):
+    """Kullanıcı kayıt sayfası"""
+    if request.user.is_authenticated:
+        return redirect('iris_list')
+    
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'Hoşgeldiniz {user.username}!')
+            return redirect('iris_list')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{error}')
+    else:
+        form = RegisterForm()
+    
+    return render(request, "iris_app/register.html", {"form": form})
 
-# --- API SERIALIZER & VIEWSET ---
-class IrisSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = IrisPlant
-        fields = '__all__'
 
-class IrisViewSet(viewsets.ModelViewSet):
-    queryset = IrisPlant.objects.all()
-    serializer_class = IrisSerializer
+def login_view(request):
+    """Kullanıcı giriş sayfası"""
+    if request.user.is_authenticated:
+        return redirect('iris_list')
+    
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f'Hoşgeldiniz, {user.username}!')
+            next_url = request.POST.get('next') or request.GET.get('next') or 'iris_list'
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Kullanıcı adı veya şifre hatalı.')
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, "iris_app/login.html", {"form": form})
 
-# --- CRUD İŞLEMLERİ ---
+
+def logout_view(request):
+    """Çıkış işlemi"""
+    logout(request)
+    messages.success(request, 'Çıkış yapıldı.')
+    return redirect('login')
+
+
+# ============= DASHBOARD =============
+
+@login_required(login_url='login')
 def iris_list(request):
-    samples = IrisPlant.objects.all()
-    return render(request, 'iris_app/iris_list.html', {'samples': samples})
+    """Ana Iris listesi sayfası"""
+    samples = IrisPlant.objects.all().select_related('lab', 'created_by').order_by('-created_at')
+    
+    context = {
+        'samples': samples,
+        'total_count': samples.count(),
+        'species_types': dict(IrisPlant.SPECIES_CHOICES) if hasattr(IrisPlant, 'SPECIES_CHOICES') else {},
+    }
+    
+    return render(request, 'iris_app/iris_list.html', context)
 
-@login_required
+
+# ============= IRIS CRUD VIEWS =============
+
+@login_required(login_url='login')
 def iris_create(request):
+    """Yeni Iris kaydı ekleme sayfası"""
     if request.method == "POST":
         form = IrisForm(request.POST)
         if form.is_valid():
             plant = form.save(commit=False)
             plant.created_by = request.user
             plant.save()
-            return redirect('iris_list')
+            messages.success(request, 'Iris örneği başarıyla eklendi.')
+            return redirect('iris_detail', pk=plant.pk)
+        else:
+            messages.error(request, 'Lütfen tüm alanları doğru şekilde doldurun.')
     else:
         form = IrisForm()
-    return render(request, 'iris_app/iris_form.html', {'form': form, 'title': 'Yeni Kayıt Ekle'})
+    
+    context = {
+        'form': form,
+        'title': 'Yeni Iris Örneği Ekle',
+        'action': 'create'
+    }
+    
+    return render(request, 'iris_app/iris_form.html', context)
 
-@login_required
-def iris_update(request, pk):
+
+@login_required(login_url='login')
+def iris_detail(request, pk):
+    """Iris detayını görüntüle"""
     plant = get_object_or_404(IrisPlant, pk=pk)
+    
+    context = {
+        'plant': plant,
+        'can_edit': plant.created_by == request.user or request.user.is_staff
+    }
+    
+    return render(request, 'iris_app/iris_detail.html', context)
+
+
+@login_required(login_url='login')
+def iris_update(request, pk):
+    """Iris kaydını düzenleme sayfası"""
+    plant = get_object_or_404(IrisPlant, pk=pk)
+    
+    # Sadece oluşturan kişi veya staff düzenleyebilir
+    if plant.created_by != request.user and not request.user.is_staff:
+        messages.error(request, 'Bu kaydı düzenleme yetkiniz yok.')
+        return redirect('iris_list')
+    
     if request.method == "POST":
         form = IrisForm(request.POST, instance=plant)
         if form.is_valid():
             form.save()
-            return redirect('iris_list')
+            messages.success(request, 'Iris örneği güncellendi.')
+            return redirect('iris_detail', pk=plant.pk)
+        else:
+            messages.error(request, 'Lütfen tüm alanları doğru şekilde doldurun.')
     else:
         form = IrisForm(instance=plant)
-    return render(request, 'iris_app/iris_form.html', {'form': form, 'title': 'Kaydı Düzenle'})
-
-@login_required
-def iris_delete(request, pk):
-    plant = get_object_or_404(IrisPlant, pk=pk)
-    plant.delete()
-    return redirect('iris_list')
-
-# --- GELİŞMİŞ ARAMA ---
-def iris_search(request):
-    query = request.GET.get('q', '')
-    min_sepal = request.GET.get('min_sepal')
-    min_petal = request.GET.get('min_petal')
     
-    results = IrisPlant.objects.all()
+    context = {
+        'form': form,
+        'plant': plant,
+        'title': 'Iris Örneğini Düzenle',
+        'action': 'update'
+    }
+    
+    return render(request, 'iris_app/iris_form.html', context)
 
-    if query:
-        results = results.filter(species__icontains=query)
-    if min_sepal:
-        results = results.filter(sepal_length__gte=min_sepal)
-    if min_petal:
-        results = results.filter(petal_length__gte=min_petal)
 
-    return render(request, 'iris_app/search.html', {'results': results})
+@login_required(login_url='login')
+def iris_delete(request, pk):
+    """Iris kaydını silme sayfası"""
+    plant = get_object_or_404(IrisPlant, pk=pk)
+    
+    # Sadece oluşturan kişi veya staff silebilir
+    if plant.created_by != request.user and not request.user.is_staff:
+        messages.error(request, 'Bu kaydı silme yetkiniz yok.')
+        return redirect('iris_list')
+    
+    if request.method == "POST":
+        plant_name = str(plant)
+        plant.delete()
+        messages.success(request, f'{plant_name} silindi.')
+        return redirect('iris_list')
+    
+    context = {'plant': plant}
+    return render(request, 'iris_app/iris_confirm_delete.html', context)
 
-# --- CSV İŞLEMLERİ ---
-def export_iris_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="iris_data.csv"'
-    writer = csv.writer(response)
-    writer.writerow(['ID', 'Species', 'Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width', 'Lab'])
-    for plant in IrisPlant.objects.all():
-        lab_name = plant.lab.name if plant.lab else "N/A"
-        writer.writerow([plant.id, plant.species, plant.sepal_length, plant.sepal_width, plant.petal_length, plant.petal_width, lab_name])
-    return response
 
-@login_required
+# ============= SEARCH VIEWS =============
+
+@login_required(login_url='login')
+def iris_search(request):
+    """Gelişmiş arama sayfası - 3+ alan"""
+    results = IrisPlant.objects.all().select_related('lab', 'created_by')
+    search_performed = False
+    
+    # Arama kriterleri
+    species = request.GET.get('species', '')
+    min_sepal_length = request.GET.get('min_sepal_length', '')
+    max_sepal_length = request.GET.get('max_sepal_length', '')
+    min_petal_length = request.GET.get('min_petal_length', '')
+    max_petal_length = request.GET.get('max_petal_length', '')
+    lab_id = request.GET.get('lab', '')
+    
+    # Filtreleme
+    if any([species, min_sepal_length, max_sepal_length, min_petal_length, max_petal_length, lab_id]):
+        search_performed = True
+        
+        if species:
+            results = results.filter(species=species)
+        
+        if min_sepal_length:
+            try:
+                results = results.filter(sepal_length__gte=float(min_sepal_length))
+            except ValueError:
+                pass
+        
+        if max_sepal_length:
+            try:
+                results = results.filter(sepal_length__lte=float(max_sepal_length))
+            except ValueError:
+                pass
+        
+        if min_petal_length:
+            try:
+                results = results.filter(petal_length__gte=float(min_petal_length))
+            except ValueError:
+                pass
+        
+        if max_petal_length:
+            try:
+                results = results.filter(petal_length__lte=float(max_petal_length))
+            except ValueError:
+                pass
+        
+        if lab_id:
+            results = results.filter(lab_id=lab_id)
+    
+    context = {
+        'results': results,
+        'result_count': results.count(),
+        'search_performed': search_performed,
+        'species_choices': IrisPlant.SPECIES_CHOICES if hasattr(IrisPlant, 'SPECIES_CHOICES') else {},
+        'labs': Laboratory.objects.all(),
+        'selected_species': species,
+        'selected_lab': lab_id,
+    }
+    
+    return render(request, 'iris_app/search.html', context)
+
+
+# ============= IMPORT/EXPORT VIEWS =============
+
+@login_required(login_url='login')
 def import_iris_csv(request):
+    """CSV dosyasını içe aktarma"""
     if request.method == "POST" and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
-        decoded_file = csv_file.read().decode('utf-8').splitlines()
-        reader = csv.reader(decoded_file)
-        next(reader) # Başlığı atla
-        for row in reader:
-            if len(row) >= 5:
-                IrisPlant.objects.create(
-                    species=row[0],
-                    sepal_length=float(row[1]),
-                    sepal_width=float(row[2]),
-                    petal_length=float(row[3]),
-                    petal_width=float(row[4]),
-                    created_by=request.user
-                )
-        return redirect('iris_list')
+        
+        try:
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            
+            imported_count = 0
+            error_count = 0
+            
+            # SPECIES_CHOICES kontrolü
+            species_dict = dict(IrisPlant.SPECIES_CHOICES) if hasattr(IrisPlant, 'SPECIES_CHOICES') else {}
+
+            for row in reader:
+                try:
+                    # Gerekli alanları kontrol et
+                    species = row.get('species', '').lower().strip()
+                    
+                    # Eğer species_choices tanımlıysa kontrol et, yoksa direkt kaydet
+                    if species_dict and species not in species_dict.keys():
+                        error_count += 1
+                        continue
+                    
+                    IrisPlant.objects.create(
+                        species=species,
+                        sepal_length=float(row.get('sepal_length', 0)),
+                        sepal_width=float(row.get('sepal_width', 0)),
+                        petal_length=float(row.get('petal_length', 0)),
+                        petal_width=float(row.get('petal_width', 0)),
+                        lab_id=row.get('lab_id') if row.get('lab_id') else None,
+                        created_by=request.user
+                    )
+                    imported_count += 1
+                except (ValueError, KeyError) as e:
+                    error_count += 1
+                    continue
+            
+            if imported_count > 0:
+                messages.success(request, f'{imported_count} Iris örneği içe aktarıldı.')
+            if error_count > 0:
+                messages.warning(request, f'{error_count} satır hata nedeniyle atlandı.')
+            
+            return redirect('iris_list')
+        
+        except Exception as e:
+            messages.error(request, f'Dosya işlenirken hata oluştu: {str(e)}')
+    
     return render(request, 'iris_app/import.html')
 
-# --- KULLANICI İŞLEMLERİ ---
-def register_view(request):
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('iris_list')
-    else:
-        form = RegisterForm()
-    return render(request, "iris_app/register.html", {"form": form})
 
-def login_view(request):
-    if request.method == "POST":
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            if 'next' in request.POST:
-                return redirect(request.POST.get('next'))
-            return redirect('iris_list')
-    else:
-        form = AuthenticationForm()
-    return render(request, "iris_app/login.html", {"form": form})
+def export_iris_csv(request):
+    """Iris verileri CSV olarak dışa aktar"""
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="iris_export.csv"'
+    
+    # BOM eklenerek Excel'de Türkçe karakterleri düzgün göster
+    response.write('\ufeff')
+    
+    writer = csv.writer(response)
+    writer.writerow(['Tür', 'Sepal Uzunluğu', 'Sepal Genişliği', 'Petal Uzunluğu', 'Petal Genişliği', 'Laboratuvar', 'Tarih'])
+    
+    for plant in IrisPlant.objects.all().select_related('lab'):
+        lab_name = plant.lab.name if plant.lab else "N/A"
+        # get_species_display metodu varsa kullan, yoksa direkt species alanını al
+        species_display = plant.get_species_display() if hasattr(plant, 'get_species_display') else plant.species
+        
+        writer.writerow([
+            species_display,
+            plant.sepal_length,
+            plant.sepal_width,
+            plant.petal_length,
+            plant.petal_width,
+            lab_name,
+            plant.created_at.strftime('%Y-%m-%d %H:%M')
+        ])
+    
+    return response
 
-def logout_view(request):
-    logout(request)
-    return redirect('login')
 
-# --- MAKİNE ÖĞRENMESİ (BONUS) ---
+# ============= MACHINE LEARNING PREDICTION (BONUS) =============
+
+@login_required(login_url='login')
 def iris_predict(request):
+    """Makine öğrenmesi tahminleme sayfası - 3+ algoritma seçeneği"""
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.svm import SVC
+    from sklearn.datasets import load_iris
+    from sklearn.preprocessing import StandardScaler
+    
     prediction = None
-    algorithm = request.GET.get('algorithm', 'logistic')
-    if request.GET.get('sepal_length'):
-        iris = load_iris()
-        X, y = iris.data, iris.target
-        if algorithm == 'knn':
-            model = KNeighborsClassifier(n_neighbors=3)
-        elif algorithm == 'svc':
-            model = SVC()
-        else:
-            model = LogisticRegression(max_iter=200)
-        model.fit(X, y)
-        user_data = np.array([[
-            float(request.GET.get('sepal_length')),
-            float(request.GET.get('sepal_width')),
-            float(request.GET.get('petal_length')),
-            float(request.GET.get('petal_width'))
-        ]])
-        res = model.predict(user_data)
-        prediction = iris.target_names[res[0]]
-    return render(request, 'iris_app/predict.html', {'prediction': prediction})
+    confidence = None
+    algorithm_name = None
+    error_message = None
+    
+    if request.method == 'POST':
+        try:
+            sepal_length = float(request.POST.get('sepal_length', 0))
+            sepal_width = float(request.POST.get('sepal_width', 0))
+            petal_length = float(request.POST.get('petal_length', 0))
+            petal_width = float(request.POST.get('petal_width', 0))
+            algorithm = request.POST.get('algorithm', 'logistic')
+            
+            # Sklearn iris veri setini yükle ve model eğit
+            iris_data = load_iris()
+            X, y = iris_data.data, iris_data.target
+            
+            # Verileri normalize et
+            scaler = StandardScaler()
+            X_scaled = scaler.fit_transform(X)
+            
+            # Seçilen algoritmayla model oluştur ve eğit
+            if algorithm == 'knn':
+                model = KNeighborsClassifier(n_neighbors=3)
+                algorithm_name = 'K-Nearest Neighbors (KNN)'
+            elif algorithm == 'svc':
+                model = SVC(probability=True)
+                algorithm_name = 'Support Vector Machine (SVM)'
+            else:  # logistic
+                model = LogisticRegression(max_iter=200, random_state=42)
+                algorithm_name = 'Logistic Regression'
+            
+            model.fit(X_scaled, y)
+            
+            # Kullanıcı verilerini normalize et ve tahmin yap
+            user_data = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
+            user_data_scaled = scaler.transform(user_data)
+            
+            prediction_idx = model.predict(user_data_scaled)[0]
+            prediction = iris_data.target_names[prediction_idx]
+            
+            # Güven skorunu hesapla (eğer mevcut ise)
+            if hasattr(model, 'predict_proba'):
+                # prob: 0.0 - 1.0 arası => yüzdeye çevir ve tam sayı yap
+                prob = float(max(model.predict_proba(user_data_scaled)[0]))
+                confidence = int(round(prob * 100))
+                # güvenlik: 0-100 aralığında sınırlama (clamp)
+                confidence = max(0, min(100, confidence))
+            
+        except ValueError:
+            error_message = 'Lütfen tüm ölçüm alanlarına sayı girin.'
+        except Exception as e:
+            error_message = f'Tahmin sırasında hata oluştu: {str(e)}'
+    
+    context = {
+        'prediction': prediction,
+        # gönderilen değer ya int(0-100) ya None olacak
+        'confidence': confidence if confidence is not None else None,
+        'algorithm_name': algorithm_name,
+        'error_message': error_message,
+    }
+    
+    return render(request, 'iris_app/predict.html', context)

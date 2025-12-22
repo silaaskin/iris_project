@@ -4,52 +4,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iris Veri Yönetim Sistemi</title>
+    <meta name="description" content="Iris Veri Yönetim Sistemi - Django Web Uygulaması">
+    <title>{% block title %}Iris Veri Yönetim Sistemi{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        /* Eğer style.css yüklenmezse diye basit yedek stiller */
-        body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
-        header { background-color: #333; color: white; padding: 15px; }
-        nav a { color: white; margin-right: 15px; text-decoration: none; }
-        .container { padding: 20px; max-width: 1000px; margin: auto; background: white; min-height: 80vh;}
-        .messages { padding: 10px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        footer { background-color: #333; color: white; text-align: center; padding: 10px; margin-top: 20px; }
+        /* Yedek stiller - CSS yüklenmezse */
+        body { font-family: sans-serif; margin: 0; }
+        header { background: #2c3e50; color: white; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
+        footer { background: #2c3e50; color: white; text-align: center; padding: 20px; margin-top: 30px; }
     </style>
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
+<!-- ============= HEADER ============= -->
 <header>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h1 style="margin: 0; font-size: 1.5rem;">🌿 Iris Project</h1>
+    <div class="header-container">
+        <h1>🌿 Iris Veri Yönetim Sistemi</h1>
         <nav>
             {% if user.is_authenticated %}
-                <span>Merhaba, <b>{{ user.username }}</b></span>
-                <a href="{% url 'iris_list' %}" style="margin-left: 15px;">Ana Sayfa</a>
-                <a href="{% url 'logout' %}" style="color: #ffcccb;">Çıkış Yap</a>
+                <span>👤 {{ user.first_name|default:user.username }}</span>
+                <a href="{% url 'iris_list' %}">📊 Anasayfa</a>
+                <a href="{% url 'iris_search' %}">🔍 Arama</a>
+                <a href="{% url 'iris_predict' %}">🤖 Tahmin (ML)</a>
+                {% if user.is_staff %}
+                    <a href="{% url 'admin:index' %}">⚙️ Admin</a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="logout-btn">🚪 Çıkış</a>
             {% else %}
-                <a href="{% url 'login' %}">Giriş Yap</a>
-                <a href="{% url 'register' %}">Kayıt Ol</a>
+                <a href="{% url 'login' %}">🔐 Giriş Yap</a>
+                <a href="{% url 'register' %}">📝 Kayıt Ol</a>
             {% endif %}
         </nav>
     </div>
 </header>
 
+<!-- ============= MESAJLAR ============= -->
 <div class="container">
     {% if messages %}
-        <div class="messages">
+        <div class="messages" role="alert" aria-live="polite">
             {% for message in messages %}
-                <div>{{ message }}</div>
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}" role="status">
+                    {{ message }}
+                </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    {% block content %}
-    {% endblock %}
+    <!-- ============= İÇERİK ============= -->
+    <div class="main-container">
+        {% block content %}
+        {% endblock %}
+    </div>
 </div>
 
+<!-- ============= FOOTER ============= -->
 <footer>
-    <p>Django Web Programlama Ödevi - 2025</p>
+    <div>
+        <h3>Iris Veri Yönetim Sistemi</h3>
+        <p>UCI Iris Dataset kullanılarak geliştirilen Django Web Uygulaması</p>
+        <p><small>©️ 2025 - Django Web Programlama Ödevi | <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank" style="color: #3498db;">UCI Dataset</a></small></p>
+    </div>
 </footer>
+
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>

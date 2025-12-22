@@ -1,1 +1,116 @@
-<h1>Kayıt Ol</h1><form method="post">{% csrf_token %}{{ form.as_p }}<button>Kaydet</button></form>
+<!-- register.html -->
+{% extends 'iris_app/base.html' %}
+{% load static %}
+
+{% block title %}Kayıt Ol - Iris Sistemi{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 500px; margin: 50px auto;">
+    <div class="card">
+        <div class="card-header">
+            <h1 style="margin: 0;">📝 Yeni Hesap Oluştur</h1>
+        </div>
+
+        <div class="card-body">
+            <p>Aşağıdaki bilgileri girerek yeni bir hesap oluşturun.</p>
+
+            <form method="POST" novalidate>
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username">Kullanıcı Adı</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="div-danger">
+                            {% for error in form.username.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email">E-Posta Adresi</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="div-danger">
+                            {% for error in form.email.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_first_name">Ad (İsteğe Bağlı)</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="div-danger">
+                            {% for error in form.first_name.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_last_name">Soyadı (İsteğe Bağlı)</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="div-danger">
+                            {% for error in form.last_name.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password1">Şifre</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="div-danger">
+                            {% for error in form.password1.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2">Şifre (Tekrar)</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="div-danger">
+                            {% for error in form.password2.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="div-danger">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">✅ Hesap Oluştur</button>
+                </div>
+            </form>
+
+            <hr>
+
+            <p style="text-align: center;">
+                Zaten hesabınız var mı? 
+                <a href="{% url 'login' %}">Giriş yapmak için tıklayın</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

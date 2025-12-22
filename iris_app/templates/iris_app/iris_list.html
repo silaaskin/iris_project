@@ -1,50 +1,113 @@
 {% extends 'iris_app/base.html' %}
 {% load static %}
 
+{% block title %}Iris Örnekleri - Yönetim Sistemi{% endblock %}
+
 {% block content %}
-<h2>Iris Veri Listesi</h2>
 
-<div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd;">
-    <p>Bu proje <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI Iris Veri Seti</a> kullanılarak hazırlanmıştır.</p>
+<h1>📊 Iris Veri Listesi</h1>
+
+<!-- ============= İNFO DIV ============= -->
+<div class="div-info">
+    <h3>ℹ️ Bilgiler</h3>
+    <p>Bu proje <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI Iris Veri Seti</a>'ni kullanarak geliştirilmiştir. Toplam <strong>{{ total_count }}</strong> Iris örneği bulunmaktadır.</p>
 </div>
 
-<div style="margin-bottom: 15px;">
-    <a href="{% url 'iris_search' %}" style="margin-right:10px;">🔍 Detaylı Arama</a>
-    <a href="{% url 'export_csv' %}" style="margin-right:10px;">⬇️ CSV İndir</a>
-    <a href="{% url 'import_csv' %}">⬆️ CSV Yükle</a>
-    <a href="{% url 'iris_create' %}" style="float:right; background:green; color:white; padding:5px 10px; text-decoration:none;">+ Yeni Kayıt</a>
+<!-- ============= İŞLEM BUTONLARI ============= -->
+<div class="div-section">
+    <h2>İşlemler</h2>
+    <div class="btn-group">
+        <a href="{% url 'iris_create' %}" class="btn btn-success">➕ Yeni Iris Ekle</a>
+        <a href="{% url 'iris_search' %}" class="btn btn-info">🔍 Detaylı Arama</a>
+        <a href="{% url 'export_csv' %}" class="btn">⬇️ CSV İndir</a>
+        <a href="{% url 'import_csv' %}" class="btn btn-warning">⬆️ CSV Yükle</a>
+        <a href="{% url 'iris_predict' %}" class="btn btn-danger">🤖 ML Tahmin</a>
+    </div>
 </div>
 
-<table border="1" style="width:100%; border-collapse: collapse; margin-top:10px;">
-    <thead>
-        <tr style="background:#eee;">
-            <th>Tür</th>
-            <th>Sepal L.</th>
-            <th>Petal L.</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for sample in samples %}
-        <tr>
-            <td>{{ sample.species }}</td>
-            <td>{{ sample.sepal_length }}</td>
-            <td>{{ sample.petal_length }}</td>
-            <td>
-                {% if user.is_superuser or "Editor" in user.groups.all.0.name %}
-                    <a href="{% url 'iris_update' sample.pk %}">Düzenle</a> | 
-                    <a href="{% url 'iris_delete' sample.pk %}">Sil</a>
-                {% else %}
-                    <span style="color:gray;">Yetkisiz</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<div style="margin-top: 30px;">
-    <h3>Bilgiler</h3>
-    <ul><li>Toplam Veri: {{ samples.count }}</li></ul>
+<!-- ============= TABLONUN ÜSTÜ DIV ============= -->
+<div class="div-highlight">
+    <h3>Kayıt Edilen Örnekler</h3>
+    <p>Aşağıda tüm Iris örnekleri gösterilmektedir. Detay görmek, düzenlemek veya silmek için ilgili bağlantıya tıklayın.</p>
 </div>
+
+<!-- ============= TABLO ============= -->
+{% if samples %}
+    <table>
+        <thead>
+            <tr>
+                <th>Tür</th>
+                <th>Sepal (cm)</th>
+                <th>Petal (cm)</th>
+                <th>Laboratuvar</th>
+                <th>Tarih</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sample in samples %}
+            <tr>
+                <td><strong>{{ sample.get_species_display }}</strong></td>
+                <td>
+                    <ul style="margin: 0; list-style: none; padding: 0;">
+                        <li>↔️ {{ sample.sepal_length }} cm</li>
+                        <li>↕️ {{ sample.sepal_width }} cm</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul style="margin: 0; list-style: none; padding: 0;">
+                        <li>↔️ {{ sample.petal_length }} cm</li>
+                        <li>↕️ {{ sample.petal_width }} cm</li>
+                    </ul>
+                </td>
+                <td>{{ sample.lab.name|default:"N/A" }}</td>
+                <td>{{ sample.created_at|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'iris_detail' sample.pk %}" class="edit">Detay</a>
+                        {% if sample.created_by == user or user.is_staff %}
+                            <a href="{% url 'iris_update' sample.pk %}" class="edit">Düzenle</a>
+                            <a href="{% url 'iris_delete' sample.pk %}" class="delete">Sil</a>
+                        {% else %}
+                            <span style="color: #999; font-size: 12px;">Yetkisiz</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="div-danger">
+        <h3>⚠️ Veri Bulunamadı</h3>
+        <p>Henüz hiç Iris örneği kaydedilmemiştir. <a href="{% url 'iris_create' %}">Yeni bir kayıt eklemek</a> veya <a href="{% url 'import_csv' %}">CSV dosyası yüklemek</a> için tıklayın.</p>
+    </div>
+{% endif %}
+
+<!-- ============= ALT DIV - İSTATİSTİKLER ============= -->
+<div class="div-section" style="margin-top: 30px;">
+    <h2>📈 İstatistikler</h2>
+    <ul>
+        <li><strong>Toplam Iris Örneği:</strong> {{ total_count }}</li>
+        <li><strong>Kullanıcılarınızın Kayıtları:</strong> {{ user.iris_plants.count }}</li>
+        <li><strong>Disponible Türler:</strong> 
+            {% for species, display_name in species_types.items %}
+                <span style="background: #ecf0f1; padding: 4px 8px; border-radius: 4px; margin: 2px;">{{ display_name }}</span>
+            {% endfor %}
+        </li>
+    </ul>
+</div>
+
+<!-- ============= BAŞKA SAYFALARA LİNKLER ============= -->
+<div class="div-section">
+    <h2>🔗 Hızlı Bağlantılar</h2>
+    <ol>
+        <li><a href="{% url 'iris_create' %}">Yeni Iris Örneği Ekle</a></li>
+        <li><a href="{% url 'iris_search' %}">Iris Örneklerinde Arama Yap</a></li>
+        <li><a href="{% url 'import_csv' %}">CSV Dosyasından İçe Aktar</a></li>
+        <li><a href="{% url 'iris_predict' %}">Makine Öğrenmesi ile Tahmin Yap</a></li>
+        <li><a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">Orijinal UCI Dataset</a></li>
+    </ol>
+</div>
+
 {% endblock %}
