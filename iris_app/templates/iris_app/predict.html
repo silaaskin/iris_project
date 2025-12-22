@@ -1,146 +1,571 @@
-<!-- predict.html (ML BONUS) -->
+<!-- predict.html - DÜZELTILMIŞ VE GELİŞTİRİLMİŞ -->
 {% extends 'iris_app/base.html' %}
 {% load static %}
 
 {% block title %}ML Tahmin - Iris Sistemi{% endblock %}
 
+{% block extra_css %}
+<style>
+    .prediction-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .predict-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .predict-header h1 {
+        font-size: 32px;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+
+    .predict-form-wrapper {
+        background: white;
+        border-radius: 12px;
+        padding: 35px;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 30px;
+    }
+
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 25px;
+        margin-bottom: 35px;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-input[type="number"]:focus {
+        outline: none;
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        background-color: #f0f7ff;
+    }
+
+    .algorithm-selector {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        border-left: 5px solid var(--secondary-color);
+    }
+
+    .algorithm-selector h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .radio-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: white;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .radio-option:hover {
+        border-color: var(--secondary-color);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    }
+
+    .radio-option input[type="radio"] {
+        cursor: pointer;
+        margin-right: 12px;
+        width: 18px;
+        height: 18px;
+        accent-color: var(--secondary-color);
+    }
+
+    .radio-option label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--dark-text);
+        text-transform: none;
+        letter-spacing: normal;
+        font-size: 14px;
+    }
+
+    .radio-option input[type="radio"]:checked + label {
+        color: var(--secondary-color);
+        font-weight: 600;
+    }
+
+    .btn-predict {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 10px;
+    }
+
+    .btn-predict:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-predict:active {
+        transform: translateY(0);
+    }
+
+    .prediction-result {
+        background: linear-gradient(135deg, #d5f4e6 0%, #e8f5e9 100%);
+        border: 2px solid var(--success-color);
+        border-radius: 12px;
+        padding: 35px;
+        margin-bottom: 30px;
+        animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .result-title {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .result-title h2 {
+        margin: 0 0 10px 0;
+        color: var(--success-color);
+        font-size: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .result-species {
+        text-align: center;
+        padding: 30px 20px;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 5px solid var(--success-color);
+    }
+
+    .species-name {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--success-color);
+        margin-bottom: 10px;
+    }
+
+    .algorithm-info {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    .algorithm-info strong {
+        color: var(--primary-color);
+    }
+
+    .confidence-container {
+        margin-top: 20px;
+    }
+
+    .confidence-label {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .confidence-bar {
+        width: 100%;
+        height: 35px;
+        background: #ecf0f1;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid var(--success-color);
+        position: relative;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--success-color) 0%, #27ae60 100%);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 12px;
+        color: white;
+        font-weight: 700;
+        font-size: 14px;
+        transition: width 0.6s ease;
+    }
+
+    .info-section {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 5px solid var(--secondary-color);
+    }
+
+    .info-section h3 {
+        margin-top: 0;
+        color: var(--primary-color);
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .species-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .species-info-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid #ecf0f1;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .species-info-list li:last-child {
+        border-bottom: none;
+    }
+
+    .species-icon {
+        margin-right: 8px;
+        font-size: 18px;
+    }
+
+    .error-box {
+        background: #fadbd8;
+        border: 2px solid var(--danger-color);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        color: #922b21;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .error-box-icon {
+        font-size: 28px;
+    }
+
+    .quick-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .quick-link-btn {
+        padding: 10px 16px;
+        background: var(--secondary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .quick-link-btn:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .predict-form-wrapper {
+            padding: 20px;
+        }
+
+        .input-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .radio-options {
+            grid-template-columns: 1fr;
+        }
+
+        .species-name {
+            font-size: 24px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<h1>🤖 Makine Öğrenmesi - Iris Türü Tahminleme</h1>
-
-<div class="div-info">
-    <h3>Scikit-learn ile Tahmin</h3>
-    <p>Lütfen Iris bitkisinin fiziksel özelliklerini girerek tahmin algoritmasını seçiniz. Sistem makine öğrenmesi modeli kullanarak türü tahmin edecektir.</p>
-</div>
-
-<!-- ============= TAHMİN FORMU ============= -->
-<div class="card">
-    <div class="card-header">
-        <h2>Ölçümleri Girin</h2>
+<div class="prediction-container">
+    <!-- BAŞLIK -->
+    <div class="predict-header">
+        <h1>🤖 Makine Öğrenmesi - Iris Türü Tahmini</h1>
+        <p style="color: #7f8c8d; font-size: 16px;">Scikit-learn kütüphanesi kullanarak Iris bitkisinin türünü tahmin edin</p>
     </div>
 
-    <div class="card-body">
+    <!-- BİLGİ KUTUSU -->
+    <div class="info-section">
+        <h3>📋 Nasıl Kullanılır?</h3>
+        <ol style="margin: 0; padding-left: 20px;">
+            <li>Iris bitkisinin fiziksel ölçümlerini santimetre cinsinden girin</li>
+            <li>Tahmin algoritmasını seçin (Logistic, KNN veya SVM)</li>
+            <li>"Tahmin Yap" butonuna tıklayarak sonuç alın</li>
+        </ol>
+    </div>
+
+    <!-- TAHMIN FORMU -->
+    <div class="predict-form-wrapper">
+        <h2 style="margin-top: 0; color: var(--primary-color);">📏 Ölçümleri Girin</h2>
+        
         <form method="POST" novalidate>
             {% csrf_token %}
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                
-                <div class="form-group">
-                    <label for="id_sepal_length">{{ form.sepal_length.label }}</label>
-                    {{ form.sepal_length }}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_sepal_width">{{ form.sepal_width.label }}</label>
-                    {{ form.sepal_width }}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_petal_length">{{ form.petal_length.label }}</label>
-                    {{ form.petal_length }}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_petal_width">{{ form.petal_width.label }}</label>
-                    {{ form.petal_width }}
-                </div>
-
-            </div>
-
-            <!-- ============= ALGORİTMA SEÇİMİ ============= -->
-            <div class="form-group" style="margin: 30px 0;">
-                <label style="margin-bottom: 15px; display: block;">{{ form.algorithm.label }}</label>
-                <div class="radio-group">
-                    {% for radio_id, radio_value, radio_label in form.algorithm %}
-                        <label>
-                            <input type="radio" name="algorithm" value="{{ radio_value }}" id="{{ radio_id }}" required>
-                            <span style="margin-left: 8px; font-weight: 500;">{{ radio_label }}</span>
-                        </label>
-                    {% endfor %}
-                </div>
-            </div>
-
+            <!-- HATA MESAJI -->
             {% if error_message %}
-                <div class="div-danger">
-                    <p>{{ error_message }}</p>
+                <div class="error-box">
+                    <span class="error-box-icon">⚠️</span>
+                    <div>{{ error_message }}</div>
                 </div>
             {% endif %}
 
-            <div class="btn-group">
-                <button type="submit" class="btn btn-success">✅ Tahmin Yap</button>
+            <!-- ÖLÇÜM GİRİŞLERİ -->
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="id_sepal_length">📏 Sepal Uzunluğu (cm)</label>
+                    <input 
+                        type="number" 
+                        class="form-input" 
+                        id="id_sepal_length"
+                        name="sepal_length" 
+                        step="0.1" 
+                        min="0" 
+                        max="10"
+                        placeholder="4.3 - 7.9"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="id_sepal_width">📏 Sepal Genişliği (cm)</label>
+                    <input 
+                        type="number" 
+                        class="form-input" 
+                        id="id_sepal_width"
+                        name="sepal_width" 
+                        step="0.1" 
+                        min="0" 
+                        max="10"
+                        placeholder="2.0 - 4.4"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="id_petal_length">🌼 Petal Uzunluğu (cm)</label>
+                    <input 
+                        type="number" 
+                        class="form-input" 
+                        id="id_petal_length"
+                        name="petal_length" 
+                        step="0.1" 
+                        min="0" 
+                        max="10"
+                        placeholder="1.0 - 6.9"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="id_petal_width">🌼 Petal Genişliği (cm)</label>
+                    <input 
+                        type="number" 
+                        class="form-input" 
+                        id="id_petal_width"
+                        name="petal_width" 
+                        step="0.1" 
+                        min="0" 
+                        max="10"
+                        placeholder="0.1 - 2.5"
+                        required
+                    >
+                </div>
             </div>
+
+            <!-- ALGORİTMA SEÇİMİ -->
+            <div class="algorithm-selector">
+                <h3>🔬 Tahmin Algoritmasını Seçin</h3>
+                <div class="radio-options">
+                    <div class="radio-option">
+                        <input 
+                            type="radio" 
+                            id="algo_logistic" 
+                            name="algorithm" 
+                            value="logistic" 
+                            required
+                        >
+                        <label for="algo_logistic">Logistic Regression</label>
+                    </div>
+
+                    <div class="radio-option">
+                        <input 
+                            type="radio" 
+                            id="algo_knn" 
+                            name="algorithm" 
+                            value="knn" 
+                            required
+                        >
+                        <label for="algo_knn">K-Nearest Neighbors</label>
+                    </div>
+
+                    <div class="radio-option">
+                        <input 
+                            type="radio" 
+                            id="algo_svc" 
+                            name="algorithm" 
+                            value="svc" 
+                            required
+                        >
+                        <label for="algo_svc">Support Vector Machine</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GÖNDER BUTONU -->
+            <button type="submit" class="btn-predict">✅ Tahmin Yap</button>
         </form>
     </div>
-</div>
 
-<!-- ============= TAHMİN SONUÇLARI ============= -->
-{% if prediction %}
-    <div style="margin-top: 30px;">
-        <div class="div-success">
-            <h2>✨ Tahmin Sonucu</h2>
-            <div style="padding: 20px; background: white; border-radius: 8px; margin-top: 15px;">
-                <h3 style="color: var(--success-color); font-size: 24px;">{{ prediction|upper }}</h3>
-                {% if algorithm_name %}
-                    <p><strong>Kullanılan Algoritma:</strong> {{ algorithm_name }}</p>
-                {% endif %}
-                {% if confidence %}
-                        <p><strong>Güven Skoru:</strong> <span style="color: var(--success-color); font-weight: bold;">{{ confidence|default:'0'|floatformat:0 }}%</span></p>
-div style="background: #ecf0f1; height: 30px; border-radius: 4px; overflow: hidden; margin: 10px 0;">
-    <div class="progress-inner" data-width="{{ confidence|default:'0'|floatformat:0 }}%">
-        <!-- içerik metni JS ile konulacak -->
-    </div>
-</div>
-
-<style>
-/* küçük stil — istersen global CSS'e taşı */
-.progress-inner{
-  background: var(--success-color);
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  width: 0; /* başlangıç */
-  transition: width 300ms ease;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  const bar = document.querySelector('.progress-inner[data-width]');
-  if(!bar) return;
-  const w = bar.getAttribute('data-width') || '0%';
-  bar.style.width = w;
-  bar.textContent = w;
-});
-</script>
-                    {% endif %}
+    <!-- TAHMIN SONUÇLARI -->
+    {% if prediction %}
+        <div class="prediction-result">
+            <div class="result-title">
+                <h2>✨ Tahmin Sonucu</h2>
             </div>
+
+            <div class="result-species">
+                <div class="species-name">{{ prediction|upper }}</div>
+                {% if algorithm_name %}
+                    <div class="algorithm-info">
+                        <strong>Kullanılan Algoritma:</strong> {{ algorithm_name }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- GÜVEN SKORU -->
+            {% if confidence %}
+                <div class="confidence-container">
+                    <div class="confidence-label">📊 Güven Skoru</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidence-fill" data-confidence="{{ confidence }}">
+                            <span id="confidence-text">{{ confidence }}%</span>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const fill = document.getElementById('confidence-fill');
+                        const confidenceValue = fill.getAttribute('data-confidence');
+                        if (fill && confidenceValue) {
+                            fill.style.width = confidenceValue + '%';
+                        }
+                    });
+                </script>
+            {% endif %}
         </div>
 
-        <!-- ============= İRİS TÜRÜ HAKKINDA BİLGİ ============= -->
-        <div class="div-highlight" style="margin-top: 20px;">
-            <h3>📚 Iris Türleri Hakkında</h3>
-            <ul>
-                <li><strong>Iris Setosa:</strong> Küçük boyutlu, dar yapraklı Iris türüdür.</li>
-                <li><strong>Iris Versicolor:</strong> Orta boyutlu, yaprakları setosa ile virginica arasındadır.</li>
-                <li><strong>Iris Virginica:</strong> En büyük boyutlu, geniş yapraklı Iris türüdür.</li>
+        <!-- İRİS TÜRLERİ BİLGİSİ -->
+        <div class="info-section">
+            <h3>🌿 Iris Türleri Hakkında</h3>
+            <ul class="species-info-list">
+                <li>
+                    <span class="species-icon">🌸</span>
+                    <strong>Iris Setosa:</strong> En küçük türüdür. Dar yaprakları ve kompakt yapısı ile tanınır. 
+                    Sepal uzunluğu 4.3-5.8 cm arasında değişir.
+                </li>
+                <li>
+                    <span class="species-icon">🌺</span>
+                    <strong>Iris Versicolor:</strong> Orta boyutlu türdür. Setosa ile virginica arasında özelliklere sahiptir. 
+                    Sepal uzunluğu 5.9-7.0 cm arasında değişir.
+                </li>
+                <li>
+                    <span class="species-icon">🌷</span>
+                    <strong>Iris Virginica:</strong> En büyük türüdür. Geniş yaprakları ve uzun sepal/petal'leri ile ayırt edilir. 
+                    Sepal uzunluğu 6.3-7.9 cm arasında değişir.
+                </li>
             </ul>
         </div>
-    </div>
-{% endif %}
 
-<!-- ============= ALT BAĞLANTILAR ============= -->
-<div class="div-section" style="margin-top: 30px;">
-    <h2>🔗 Hızlı Bağlantılar</h2>
-    <ol>
-        <li><a href="{% url 'iris_list' %}">Tüm Iris Örnekleri</a></li>
-        <li><a href="{% url 'iris_search' %}">Arama Yapın</a></li>
-        <li><a href="{% url 'iris_create' %}">Yeni Örnek Ekle</a></li>
-        <li><a href="https://scikit-learn.org/" target="_blank">Scikit-learn Dokumentasyonu</a></li>
-    </ol>
+        <!-- HIZLI BAĞLANTILAR -->
+        <div class="quick-links">
+            <a href="{% url 'iris_list' %}" class="quick-link-btn">📊 Tüm Örnekler</a>
+            <a href="{% url 'iris_search' %}" class="quick-link-btn">🔍 Arama Yap</a>
+            <a href="{% url 'iris_predict' %}" class="quick-link-btn">🔄 Yeni Tahmin</a>
+        </div>
+    {% else %}
+        <!-- BAŞ TASLAĞI -->
+        <div class="info-section">
+            <h3>💡 Ek Bilgiler</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li><strong>Logistic Regression:</strong> Doğrusal tahmin modeli, hızlı ve basit</li>
+                <li><strong>K-Nearest Neighbors:</strong> Komşu tabanlı sınıflandırma, esnek yapı</li>
+                <li><strong>Support Vector Machine:</strong> Yüksek boyutlu uzayda sınıflandırma, güçlü model</li>
+            </ul>
+        </div>
+    {% endif %}
 </div>
 
 {% endblock %}

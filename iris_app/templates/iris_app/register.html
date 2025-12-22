@@ -1,114 +1,269 @@
-<!-- register.html -->
+<!-- register.html - MODERNLEŞTIRILMIŞ -->
 {% extends 'iris_app/base.html' %}
 {% load static %}
 
 {% block title %}Kayıt Ol - Iris Sistemi{% endblock %}
 
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        max-width: 500px;
+        width: 100%;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 40px 30px 30px;
+        text-align: center;
+    }
+
+    .auth-header h1 {
+        margin: 0 0 10px 0;
+        font-size: 28px;
+        color: white;
+    }
+
+    .auth-header p {
+        margin: 0;
+        font-size: 14px;
+        opacity: 0.9;
+        color: white;
+    }
+
+    .auth-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .auth-body {
+        padding: 40px 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 11px 13px;
+        border: 2px solid #ecf0f1;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #3498db;
+        background-color: #f0f7ff;
+        box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 6px;
+        padding: 6px 10px;
+        background: #fadbd8;
+        border-left: 3px solid #e74c3c;
+        border-radius: 4px;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 15px;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .auth-footer {
+        padding: 25px 30px;
+        text-align: center;
+        border-top: 1px solid #ecf0f1;
+        background: #f8f9fa;
+    }
+
+    .auth-footer p {
+        margin: 0;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .auth-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .auth-footer a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .form-errors {
+        background: #fadbd8;
+        color: #922b21;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #e74c3c;
+    }
+
+    .form-errors li {
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+
+    .password-help {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-top: 6px;
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div style="max-width: 500px; margin: 50px auto;">
-    <div class="card">
-        <div class="card-header">
-            <h1 style="margin: 0;">📝 Yeni Hesap Oluştur</h1>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">📝</span>
+            <h1>Yeni Hesap Oluştur</h1>
+            <p>Iris Veri Yönetim Sistemi</p>
         </div>
 
-        <div class="card-body">
-            <p>Aşağıdaki bilgileri girerek yeni bir hesap oluşturun.</p>
-
+        <div class="auth-body">
             <form method="POST" novalidate>
                 {% csrf_token %}
 
-                <div class="form-group">
-                    <label for="id_username">Kullanıcı Adı</label>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                        <div class="div-danger">
-                            {% for error in form.username.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_email">E-Posta Adresi</label>
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                        <div class="div-danger">
-                            {% for error in form.email.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_first_name">Ad (İsteğe Bağlı)</label>
-                    {{ form.first_name }}
-                    {% if form.first_name.errors %}
-                        <div class="div-danger">
-                            {% for error in form.first_name.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_last_name">Soyadı (İsteğe Bağlı)</label>
-                    {{ form.last_name }}
-                    {% if form.last_name.errors %}
-                        <div class="div-danger">
-                            {% for error in form.last_name.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_password1">Şifre</label>
-                    {{ form.password1 }}
-                    {% if form.password1.errors %}
-                        <div class="div-danger">
-                            {% for error in form.password1.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_password2">Şifre (Tekrar)</label>
-                    {{ form.password2 }}
-                    {% if form.password2.errors %}
-                        <div class="div-danger">
-                            {% for error in form.password2.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
                 {% if form.non_field_errors %}
-                    <div class="div-danger">
+                    <div class="form-errors">
                         {% for error in form.non_field_errors %}
-                            <p>{{ error }}</p>
+                            <li>{{ error }}</li>
                         {% endfor %}
                     </div>
                 {% endif %}
 
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-success">✅ Hesap Oluştur</button>
+                <div class="form-group">
+                    <label for="id_username">👤 Kullanıcı Adı *</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        {% for error in form.username.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
+
+                <div class="form-group">
+                    <label for="id_email">📧 E-Posta *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_first_name">📛 Ad</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        {% for error in form.first_name.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_last_name">👨‍👩‍👧 Soyadı</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        {% for error in form.last_name.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password1">🔑 Şifre *</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        {% for error in form.password1.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2">🔒 Şifre (Tekrar) *</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        {% for error in form.password2.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-register">✅ Hesap Oluştur</button>
             </form>
+        </div>
 
-            <hr>
-
-            <p style="text-align: center;">
-                Zaten hesabınız var mı? 
-                <a href="{% url 'login' %}">Giriş yapmak için tıklayın</a>
-            </p>
+        <div class="auth-footer">
+            <p>Zaten hesabınız var mı? <a href="{% url 'login' %}">Giriş yapmak için tıklayın</a></p>
         </div>
     </div>
 </div>

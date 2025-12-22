@@ -1,68 +1,272 @@
-<!-- login.html -->
-{% extends 'iris_app/base.html' %}
+<!-- login.html - MODERNLEŞTIRILMIŞ (BASE.HTML OVERRIDE) -->
 {% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Iris Veri Yönetim Sistemi - Django Web Uygulaması">
+    <title>Giriş Yap - Iris Sistemi</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
 
-{% block title %}Giriş Yap - Iris Sistemi{% endblock %}
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-{% block content %}
+        .auth-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 450px;
+            width: 100%;
+            animation: slideUp 0.5s ease-out;
+        }
 
-<div style="max-width: 500px; margin: 50px auto;">
-    <div class="card">
-        <div class="card-header">
-            <h1 style="margin: 0;">🔐 Giriş Yap</h1>
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px 30px 30px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            color: white;
+        }
+
+        .auth-header p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .auth-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .auth-body {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .auth-form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            height: 50px;
+            box-sizing: border-box;
+        }
+
+        .auth-form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            background-color: #f0f7ff;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+        }
+
+        .auth-form-input::placeholder {
+            color: #bdc3c7;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #fadbd8;
+            border-left: 3px solid #e74c3c;
+            border-radius: 4px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .auth-footer {
+            padding: 25px 30px;
+            text-align: center;
+            border-top: 1px solid #ecf0f1;
+            background: #f8f9fa;
+        }
+
+        .auth-footer p {
+            margin: 0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .form-errors {
+            background: #fadbd8;
+            color: #922b21;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .form-errors li {
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .success-message {
+            background: #d5f4e6;
+            color: #196f3d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">🔐</span>
+            <h1>Giriş Yap</h1>
+            <p>Iris Veri Yönetim Sistemi</p>
         </div>
 
-        <div class="card-body">
-            <p>Hesabınıza giriş yaparak Iris veri sisteminize erişin.</p>
+        <div class="auth-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="success-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
 
             <form method="POST" novalidate>
                 {% csrf_token %}
 
-                <div class="form-group">
-                    <label for="id_username">Kullanıcı Adı</label>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                        <div class="div-danger">
-                            {% for error in form.username.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_password">Şifre</label>
-                    {{ form.password }}
-                    {% if form.password.errors %}
-                        <div class="div-danger">
-                            {% for error in form.password.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
                 {% if form.non_field_errors %}
-                    <div class="div-danger">
+                    <div class="form-errors">
                         {% for error in form.non_field_errors %}
-                            <p>{{ error }}</p>
+                            <li>{{ error }}</li>
                         {% endfor %}
                     </div>
                 {% endif %}
 
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-success">✅ Giriş Yap</button>
+                <div class="form-group">
+                    <label for="id_username">👤 Kullanıcı Adı</label>
+                    <input 
+                        type="text" 
+                        class="auth-form-input" 
+                        id="id_username"
+                        name="username" 
+                        placeholder="Kullanıcı adınız"
+                        required
+                    >
+                    {% if form.username.errors %}
+                        {% for error in form.username.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
+
+                <div class="form-group">
+                    <label for="id_password">🔑 Şifre</label>
+                    <input 
+                        type="password" 
+                        class="auth-form-input" 
+                        id="id_password"
+                        name="password" 
+                        placeholder="Şifreniz"
+                        required
+                    >
+                    {% if form.password.errors %}
+                        {% for error in form.password.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-login">✅ Giriş Yap</button>
             </form>
+        </div>
 
-            <hr>
-
-            <p style="text-align: center;">
-                Henüz hesabınız yok mu? 
-                <a href="{% url 'register' %}">Kayıt olmak için tıklayın</a>
-            </p>
+        <div class="auth-footer">
+            <p>Hesabınız yok mu? <a href="{% url 'register' %}">Kayıt olmak için tıklayın</a></p>
         </div>
     </div>
 </div>
 
-{% endblock %}
+</body>
+</html>
