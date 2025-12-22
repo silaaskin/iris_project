@@ -585,7 +585,12 @@
 <!-- HEADER -->
 <header>
     <div class="container">
-        <h1>Iris Data Management</h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="{% static 'images/iris-logo.png' %}" 
+                 alt="Iris Logo" 
+                 style="width: 50px; height: 50px; border-radius: 50%;">
+            <h1>Iris Data Management</h1>
+        </div>
         <nav>
             {% if user.is_authenticated %}
                 <span>{{ user.first_name|default:user.username }}</span>

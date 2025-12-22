@@ -1,96 +1,115 @@
-<!-- search.html -->
 {% extends 'iris_app/base.html' %}
 {% load static %}
 
-{% block title %}Iris Arama - Yönetim Sistemi{% endblock %}
+{% block title %}Advanced Search - Iris System{% endblock %}
 
 {% block content %}
 
-<h1>🔍 Gelişmiş Arama</h1>
+<h1>🔍 Advanced Search</h1>
 
 <div class="div-info">
-    <h3>Arama Yapın</h3>
-    <p>Iris örneklerini türe, ölçüm aralıklarına ve laboratuvara göre filtreleyebilirsiniz. En az bir kriter girerek arama yapın.</p>
+    <h3>Search Iris Samples</h3>
+    <p>You can filter Iris samples by species, measurement ranges, and laboratory. Enter at least one criteria to search.</p>
 </div>
 
-<!-- ============= ARAMA FORMU ============= -->
+<!-- SEARCH FORM -->
 <div class="card">
     <div class="card-header">
-        <h2>Filtreleme Kriterleri</h2>
+        <h2>Search Criteria</h2>
     </div>
 
     <div class="card-body">
         <form method="GET" novalidate>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                 
+                <!-- SPECIES FILTER -->
                 <div class="form-group">
-                    <label for="id_species">Tür</label>
-                    {{ form.species }}
+                    <label for="id_species">Species</label>
+                    <select id="id_species" name="species" class="form-input">
+                        <option value="">--- All Species ---</option>
+                        <option value="setosa" {% if request.GET.species == 'setosa' %}selected{% endif %}>Iris Setosa</option>
+                        <option value="versicolor" {% if request.GET.species == 'versicolor' %}selected{% endif %}>Iris Versicolor</option>
+                        <option value="virginica" {% if request.GET.species == 'virginica' %}selected{% endif %}>Iris Virginica</option>
+                    </select>
                 </div>
 
+                <!-- MIN SEPAL LENGTH -->
                 <div class="form-group">
-                    <label for="id_min_sepal_length">Min Sepal Uzunluğu</label>
-                    {{ form.min_sepal_length }}
+                    <label for="id_min_sepal_length">Min Sepal Length (cm)</label>
+                    <input type="number" id="id_min_sepal_length" name="min_sepal_length" step="0.1" min="0" class="form-input" placeholder="e.g: 4.5" value="{{ request.GET.min_sepal_length }}">
                 </div>
 
+                <!-- MAX SEPAL LENGTH -->
                 <div class="form-group">
-                    <label for="id_max_sepal_length">Max Sepal Uzunluğu</label>
-                    {{ form.max_sepal_length }}
+                    <label for="id_max_sepal_length">Max Sepal Length (cm)</label>
+                    <input type="number" id="id_max_sepal_length" name="max_sepal_length" step="0.1" min="0" class="form-input" placeholder="e.g: 8.0" value="{{ request.GET.max_sepal_length }}">
                 </div>
 
+                <!-- MIN PETAL LENGTH -->
                 <div class="form-group">
-                    <label for="id_min_petal_length">Min Petal Uzunluğu</label>
-                    {{ form.min_petal_length }}
+                    <label for="id_min_petal_length">Min Petal Length (cm)</label>
+                    <input type="number" id="id_min_petal_length" name="min_petal_length" step="0.1" min="0" class="form-input" placeholder="e.g: 1.0" value="{{ request.GET.min_petal_length }}">
                 </div>
 
+                <!-- MAX PETAL LENGTH -->
                 <div class="form-group">
-                    <label for="id_max_petal_length">Max Petal Uzunluğu</label>
-                    {{ form.max_petal_length }}
+                    <label for="id_max_petal_length">Max Petal Length (cm)</label>
+                    <input type="number" id="id_max_petal_length" name="max_petal_length" step="0.1" min="0" class="form-input" placeholder="e.g: 7.0" value="{{ request.GET.max_petal_length }}">
                 </div>
 
+                <!-- LABORATORY FILTER -->
                 <div class="form-group">
-                    <label for="id_lab">Laboratuvar</label>
-                    {{ form.lab }}
+                    <label for="id_lab">Laboratory</label>
+                    <select id="id_lab" name="lab" class="form-input">
+                        <option value="">--- All Laboratories ---</option>
+                        {% for lab in form.lab.field.queryset %}
+                            <option value="{{ lab.id }}" {% if request.GET.lab == lab.id|stringformat:"s" %}selected{% endif %}>{{ lab.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
 
             </div>
 
             <div class="btn-group" style="margin-top: 20px;">
-                <button type="submit" class="btn btn-success">🔎 Ara</button>
-                <a href="{% url 'iris_search' %}" class="btn">🔄 Temizle</a>
+                <button type="submit" class="btn btn-success">🔎 Search</button>
+                <a href="{% url 'iris_search' %}" class="btn">🔄 Clear</a>
             </div>
         </form>
     </div>
 </div>
 
-<!-- ============= SONUÇLAR ============= -->
+<!-- SEARCH RESULTS -->
 {% if search_performed %}
     <div style="margin-top: 30px;">
         {% if results %}
             <div class="div-success">
-                <h2>✅ Sonuçlar ({{ result_count }})</h2>
-                <p>Arama kriterlerinize uygun {{ result_count }} Iris örneği bulundu.</p>
+                <h2>✅ Results ({{ result_count }})</h2>
+                <p>Found {{ result_count }} Iris samples matching your search criteria.</p>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>Tür</th>
+                        <th>Species</th>
                         <th>Sepal (cm)</th>
                         <th>Petal (cm)</th>
-                        <th>Laboratuvar</th>
-                        <th>İşlemler</th>
+                        <th>Laboratory</th>
+                        <th>Created By</th>
+                        <th>Date</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for sample in results %}
                     <tr>
                         <td><strong>{{ sample.get_species_display }}</strong></td>
-                        <td>{{ sample.sepal_length }} × {{ sample.sepal_width }}</td>
-                        <td>{{ sample.petal_length }} × {{ sample.petal_width }}</td>
+                        <td>{{ sample.sepal_length }}cm × {{ sample.sepal_width }}cm</td>
+                        <td>{{ sample.petal_length }}cm × {{ sample.petal_width }}cm</td>
                         <td>{{ sample.lab.name|default:"N/A" }}</td>
+                        <td>{{ sample.created_by.username }}</td>
+                        <td>{{ sample.created_at|date:"d/m/Y H:i" }}</td>
                         <td>
-                            <a href="{% url 'iris_detail' sample.pk %}" class="btn btn-info" style="padding: 4px 8px; font-size: 12px;">Detay</a>
+                            <a href="{% url 'iris_detail' sample.pk %}" class="btn" style="padding: 4px 8px; font-size: 12px;">View</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -98,28 +117,40 @@
             </table>
         {% else %}
             <div class="div-danger">
-                <h2>❌ Sonuç Bulunamadı</h2>
-                <p>Girdiğiniz kriterlere uygun Iris örneği bulunmamaktadır. Lütfen farklı kriterler deneyin.</p>
+                <h2>❌ No Results Found</h2>
+                <p>No Iris samples match your search criteria. Please try different search parameters.</p>
+                <a href="{% url 'iris_search' %}" class="btn" style="margin-top: 10px;">Clear Search</a>
             </div>
         {% endif %}
     </div>
 {% else %}
     <div style="margin-top: 30px;">
         <div class="div-highlight">
-            <h3>💡 Bilgi</h3>
-            <p>Arama yapmak için lütfen en az bir kriteri doldurun ve "Ara" butonuna tıklayın.</p>
+            <h3>💡 Information</h3>
+            <p>To search, please fill in at least one field and click the "Search" button.</p>
+        </div>
+
+        <div class="div-section" style="margin-top: 20px;">
+            <h3>📊 Search Examples</h3>
+            <ul>
+                <li><strong>Find all Setosa:</strong> Select "Iris Setosa" in Species field</li>
+                <li><strong>Find large flowers:</strong> Set Min Petal Length to 5.0</li>
+                <li><strong>Find samples from specific lab:</strong> Select laboratory name</li>
+                <li><strong>Combine criteria:</strong> Select species AND measurement range</li>
+            </ul>
         </div>
     </div>
 {% endif %}
 
-<!-- ============= ALT BAĞLANTILAR ============= -->
+<!-- QUICK LINKS -->
 <div class="div-section" style="margin-top: 30px;">
-    <h2>🔗 Hızlı Bağlantılar</h2>
-    <ul>
-        <li><a href="{% url 'iris_list' %}">Tüm Iris Örneklerini Görüntüle</a></li>
-        <li><a href="{% url 'iris_create' %}">Yeni Iris Örneği Ekle</a></li>
-        <li><a href="{% url 'iris_predict' %}">ML ile Tahmin Yap</a></li>
-    </ul>
+    <h2>🔗 Quick Links</h2>
+    <ol>
+        <li><a href="{% url 'iris_list' %}">View All Iris Samples</a></li>
+        <li><a href="{% url 'iris_create' %}">Add New Iris Sample</a></li>
+        <li><a href="{% url 'iris_predict' %}">Predict With ML</a></li>
+        <li><a href="{% url 'export_csv' %}">Export to CSV</a></li>
+    </ol>
 </div>
 
 {% endblock %}

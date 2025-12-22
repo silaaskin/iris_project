@@ -1,69 +1,82 @@
-<!-- import.html -->
 {% extends 'iris_app/base.html' %}
 {% load static %}
 
-{% block title %}CSV İçe Aktar - Iris Sistemi{% endblock %}
+{% block title %}Import CSV - Iris System{% endblock %}
 
 {% block content %}
 
-<h1>⬆️ CSV Dosyası İçe Aktar</h1>
+<h1>📤 Import CSV File</h1>
 
 <div class="div-info">
-    <img src="{% static 'images/csv_icon.png' %}" alt="CSV Import" style="width: 50px; height: 50px; float: left; margin-right: 15px;">
-    <h3>CSV Dosyası Gereksinimleri</h3>
-    <p>Yükleyeceğiniz CSV dosyası aşağıdaki sütunları içermelidir:</p>
+    <img src="{% static 'images/csv-icon.png' %}" alt="CSV file import icon showing data upload" style="width: 80px; height: 80px; float: left; margin-right: 15px; border-radius: 8px;">
+    <h3>CSV File Requirements</h3>
+    <p>Your CSV file must contain the following columns:</p>
     <ul>
-        <li><strong>sepal_length</strong> - Sepal uzunluğu (cm)</li>
-        <li><strong>sepal_width</strong> - Sepal genişliği (cm)</li>
-        <li><strong>petal_length</strong> - Petal uzunluğu (cm)</li>
-        <li><strong>petal_width</strong> - Petal genişliği (cm)</li>
-        <li><strong>species</strong> - Iris türü (setosa, versicolor, virginica)</li>
+        <li><strong>sepal_length</strong> - Sepal length in cm</li>
+        <li><strong>sepal_width</strong> - Sepal width in cm</li>
+        <li><strong>petal_length</strong> - Petal length in cm</li>
+        <li><strong>petal_width</strong> - Petal width in cm</li>
+        <li><strong>species</strong> - Iris species (setosa, versicolor, virginica)</li>
     </ul>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h2>Dosya Yükle</h2>
+        <h2>Upload File</h2>
     </div>
 
     <div class="card-body">
         <form method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-
+            
             <div class="form-group">
-                <label for="{{ form.csv_file.id_for_label }}">{{ form.csv_file.label }}</label>
-                {{ form.csv_file }}
-                {% if form.csv_file.help_text %}
-                    <small style="color: #666;">{{ form.csv_file.help_text|safe }}</small>
-                {% endif %}
-                {% if form.csv_file.errors %}
-                    <div class="div-danger">
-                        {% for error in form.csv_file.errors %}
-                            <small>{{ error }}</small>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                <label for="csv_file">Select CSV File</label>
+                <input type="file" id="csv_file" name="csv_file" accept=".csv" required>
+                <small style="color: #666; margin-top: 0.5rem; display: block;">Maximum file size: 5MB</small>
+            </div>
+
+            {% if form.csv_file.errors %}
+                <div class="div-danger">
+                    {% for error in form.csv_file.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div style="margin: 1.5rem 0; padding: 1rem; background: #f0f9ff; border-left: 4px solid var(--primary-light); border-radius: 4px;">
+                <strong>📋 Example CSV Format:</strong>
+                <pre style="margin: 10px 0; background: white; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 0.85rem;">sepal_length,sepal_width,petal_length,petal_width,species
+5.1,3.5,1.4,0.2,setosa
+7.0,3.2,4.7,1.4,versicolor
+6.3,3.3,6.0,2.5,virginica
+5.8,2.7,5.1,1.9,virginica
+5.1,3.5,1.4,0.2,setosa</pre>
             </div>
 
             <div class="btn-group">
-                <input type="submit" value="📤 Yükle" class="btn btn-success">
-                <input type="reset" value="🔄 Temizle" class="btn">
-                <a href="{% url 'iris_list' %}" class="btn">❌ İptal</a>
+                <button type="submit" class="btn btn-success">📤 Upload</button>
+                <input type="reset" value="🔄 Clear" class="btn">
+                <a href="{% url 'iris_list' %}" class="btn">❌ Cancel</a>
             </div>
         </form>
     </div>
 </div>
 
-<!-- ============= ÖRNEK CSV ============= -->
 <div class="div-section" style="margin-top: 30px;">
-    <h2>📋 Örnek CSV Formatı</h2>
-    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; overflow-x: auto;">
-        <pre style="margin: 0; font-size: 12px;">sepal_length,sepal_width,petal_length,petal_width,species
-5.1,3.5,1.4,0.2,setosa
-7.0,3.2,4.7,1.4,versicolor
-6.3,3.3,6.0,2.5,virginica</pre>
-    </div>
-    <p style="margin-top: 15px;">CSV dosyanızı <a href="{% url 'export_csv' %}">buradan indirebileceğiniz örnek</a> temel alarak hazırlayabilirsiniz.</p>
+    <h2>📚 How to Prepare Your CSV</h2>
+    <ol>
+        <li>Open Excel, Google Sheets, or any text editor</li>
+        <li>Create columns: sepal_length, sepal_width, petal_length, petal_width, species</li>
+        <li>Add your Iris measurement data in each row</li>
+        <li>Make sure species names are: <code>setosa</code>, <code>versicolor</code>, or <code>virginica</code></li>
+        <li>Save as CSV (.csv) format</li>
+        <li>Upload using the form above</li>
+    </ol>
+</div>
+
+<div class="div-success" style="margin-top: 30px;">
+    <h2>✅ Pro Tip</h2>
+    <p>You can <a href="{% url 'export_csv' %}">download an existing CSV export</a> to use as a template for your data.</p>
 </div>
 
 {% endblock %}

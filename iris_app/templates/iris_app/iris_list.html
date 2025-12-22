@@ -1,46 +1,67 @@
 {% extends 'iris_app/base.html' %}
 {% load static %}
 
-{% block title %}Iris Örnekleri - Yönetim Sistemi{% endblock %}
+{% block title %}Iris Samples - Management System{% endblock %}
 
 {% block content %}
 
-<h1>📊 Iris Veri Listesi</h1>
+<h1>📊 Iris Data List</h1>
 
 <div class="div-info">
-    <h3>ℹ️ Bilgiler</h3>
-    <p>Bu proje <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI Iris Veri Seti</a>'ni kullanarak geliştirilmiştir. Toplam <strong>{{ total_count }}</strong> Iris örneği bulunmaktadır.</p>
+    <h3>ℹ️ Information</h3>
+    <p>This project uses the <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI Iris Dataset</a>. Total <strong>{{ total_count }}</strong> Iris samples are stored in the system.</p>
+</div>
+
+<!-- IRIS SPECIES IMAGES -->
+<div class="div-section">
+    <h2>🌿 Iris Species</h2>
+    <div class="gallery">
+        <div style="text-align: center;">
+            <img src="{% static 'images/setosa.jpg' %}" alt="Iris Setosa - Small purple flower with short petals" style="width: 100%; height: 200px; object-fit: cover;">
+            <h3>Iris Setosa</h3>
+            <p style="font-size: 0.9rem;">Small flowers with short petals. Easily distinguishable from other species.</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="{% static 'images/versicolor.jpg' %}" alt="Iris Versicolor - Medium purple flower with medium petals" style="width: 100%; height: 200px; object-fit: cover;">
+            <h3>Iris Versicolor</h3>
+            <p style="font-size: 0.9rem;">Medium-sized flowers with medium-length petals. Variable characteristics.</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="{% static 'images/virginica.jpg' %}" alt="Iris Virginica - Large purple flower with long petals" style="width: 100%; height: 200px; object-fit: cover;">
+            <h3>Iris Virginica</h3>
+            <p style="font-size: 0.9rem;">Larger flowers with longer petals. Most elegant of the three species.</p>
+        </div>
+    </div>
 </div>
 
 <div class="div-section">
-    <h2>İşlemler</h2>
+    <h2>⚙️ Actions</h2>
     <div class="btn-group">
-        <a href="{% url 'iris_search' %}" class="btn btn-info">🔍 Detaylı Arama</a>
-        <a href="{% url 'iris_predict' %}" class="btn btn-danger">🤖 ML Tahmin</a>
-
+        <a href="{% url 'iris_search' %}" class="btn btn-info">🔍 Advanced Search</a>
+        <a href="{% url 'iris_predict' %}" class="btn btn-danger">🤖 ML Prediction</a>
         {% if is_editor %}
-            <a href="{% url 'export_csv' %}" class="btn">⬇️ CSV İndir</a>
-            <a href="{% url 'iris_create' %}" class="btn btn-success">➕ Yeni Iris Ekle</a>
-            <a href="{% url 'import_csv' %}" class="btn btn-warning">⬆️ CSV Yükle</a>
+            <a href="{% url 'export_csv' %}" class="btn">⬇️ Export CSV</a>
+            <a href="{% url 'iris_create' %}" class="btn btn-success">➕ Add New Iris</a>
+            <a href="{% url 'import_csv' %}" class="btn btn-warning">⬆️ Import CSV</a>
         {% endif %}
     </div>
 </div>
 
 <div class="div-highlight">
-    <h3>Kayıt Edilen Örnekler</h3>
-    <p>Aşağıda tüm Iris örnekleri gösterilmektedir. Detay görmek, düzenlemek veya silmek için ilgili bağlantıya tıklayın.</p>
+    <h3>📝 Recorded Samples</h3>
+    <p>Below are all registered Iris samples. Click the links to view details, edit, or delete records.</p>
 </div>
 
 {% if samples %}
     <table>
         <thead>
             <tr>
-                <th>Tür</th>
+                <th>Species</th>
                 <th>Sepal (cm)</th>
                 <th>Petal (cm)</th>
-                <th>Laboratuvar</th>
-                <th>Tarih</th>
-                <th>İşlemler</th>
+                <th>Laboratory</th>
+                <th>Date</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -48,13 +69,13 @@
             <tr>
                 <td><strong>{{ sample.get_species_display }}</strong></td>
                 <td>
-                    <ul style="margin: 0; list-style: none; padding: 0;">
+                    <ul style="margin: 0; list-style: none; padding: 0; font-size: 0.9rem;">
                         <li>↔️ {{ sample.sepal_length }} cm</li>
                         <li>↕️ {{ sample.sepal_width }} cm</li>
                     </ul>
                 </td>
                 <td>
-                    <ul style="margin: 0; list-style: none; padding: 0;">
+                    <ul style="margin: 0; list-style: none; padding: 0; font-size: 0.9rem;">
                         <li>↔️ {{ sample.petal_length }} cm</li>
                         <li>↕️ {{ sample.petal_width }} cm</li>
                     </ul>
@@ -63,14 +84,11 @@
                 <td>{{ sample.created_at|date:"d/m/Y H:i" }}</td>
                 <td>
                     <div class="table-actions">
-                        <a href="{% url 'iris_detail' sample.pk %}" class="edit">Detay</a>
-                        
+                        <a href="{% url 'iris_detail' sample.pk %}" class="edit">View</a>
                         {% if is_editor %}
                             {% if sample.created_by == user or user.is_superuser %}
-                                <a href="{% url 'iris_update' sample.pk %}" class="edit">Düzenle</a>
-                                <a href="{% url 'iris_delete' sample.pk %}" class="delete">Sil</a>
-                            {% else %}
-                                <span style="color: #999; font-size: 12px;">(Yetkisiz)</span>
+                                <a href="{% url 'iris_update' sample.pk %}" class="edit">Edit</a>
+                                <a href="{% url 'iris_delete' sample.pk %}" class="delete">Delete</a>
                             {% endif %}
                         {% endif %}
                     </div>
@@ -81,23 +99,23 @@
     </table>
 {% else %}
     <div class="div-danger">
-        <h3>⚠️ Veri Bulunamadı</h3>
-        <p>Henüz hiç Iris örneği kaydedilmemiştir. 
+        <h3>⚠️ No Data Found</h3>
+        <p>No Iris samples have been recorded yet. 
         {% if is_editor %}
-            <a href="{% url 'iris_create' %}">Yeni bir kayıt eklemek</a> veya <a href="{% url 'import_csv' %}">CSV dosyası yüklemek</a> için tıklayın.
+            <a href="{% url 'iris_create' %}">Add a new record</a> or <a href="{% url 'import_csv' %}">import a CSV file</a>.
         {% else %}
-            Yetkili bir kullanıcı veri ekleyene kadar bekleyin.
+            Wait for an authorized user to add data.
         {% endif %}
         </p>
     </div>
 {% endif %}
 
 <div class="div-section" style="margin-top: 30px;">
-    <h2>📈 İstatistikler</h2>
+    <h2>📈 Statistics</h2>
     <ul>
-        <li><strong>Toplam Iris Örneği:</strong> {{ total_count }}</li>
-        <li><strong>Kullanıcılarınızın Kayıtları:</strong> {{ user.irisplant_set.count }}</li>
-        <li><strong>Disponible Türler:</strong> 
+        <li><strong>Total Iris Samples:</strong> {{ total_count }}</li>
+        <li><strong>Your Records:</strong> {{ user.irisplant_set.count }}</li>
+        <li><strong>Available Species:</strong> 
             {% for species, display_name in species_types.items %}
                 <span style="background: #ecf0f1; padding: 4px 8px; border-radius: 4px; margin: 2px;">{{ display_name }}</span>
             {% endfor %}
@@ -106,15 +124,15 @@
 </div>
 
 <div class="div-section">
-    <h2>🔗 Hızlı Bağlantılar</h2>
+    <h2>🔗 Quick Links</h2>
     <ol>
         {% if is_editor %}
-            <li><a href="{% url 'iris_create' %}">Yeni Iris Örneği Ekle</a></li>
-            <li><a href="{% url 'import_csv' %}">CSV Dosyasından İçe Aktar</a></li>
+            <li><a href="{% url 'iris_create' %}">Add New Iris Sample</a></li>
+            <li><a href="{% url 'import_csv' %}">Import From CSV File</a></li>
         {% endif %}
-        <li><a href="{% url 'iris_search' %}">Iris Örneklerinde Arama Yap</a></li>
-        <li><a href="{% url 'iris_predict' %}">Makine Öğrenmesi ile Tahmin Yap</a></li>
-        <li><a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">Orijinal UCI Dataset</a></li>
+        <li><a href="{% url 'iris_search' %}">Search Iris Samples</a></li>
+        <li><a href="{% url 'iris_predict' %}">Predict With Machine Learning</a></li>
+        <li><a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">Original UCI Dataset</a></li>
     </ol>
 </div>
 

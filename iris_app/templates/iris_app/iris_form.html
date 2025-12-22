@@ -8,95 +8,100 @@
 <h1>{{ title }}</h1>
 
 <div class="div-highlight">
-    <p>Lütfen tüm alanları dikkatlice doldurunuz. Tüm ölçüm değerleri santimetre cinsinden olmalıdır.</p>
+    <p>Please fill all fields carefully. All measurement values must be in centimeters.</p>
 </div>
 
-<form method="POST" novalidate>
+<form method="POST" novalidate class="card">
     {% csrf_token %}
     
-    <div class="form-group">
-        <label for="id_sepal_length">{{ form.sepal_length.label }}</label>
-        {{ form.sepal_length }}
-        {% if form.sepal_length.errors %}
+    <div class="card-body">
+        {% if form.non_field_errors %}
             <div class="div-danger">
-                {% for error in form.sepal_length.errors %}
-                    <small>{{ error }}</small>
+                <h3>❌ Errors</h3>
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
                 {% endfor %}
             </div>
         {% endif %}
-    </div>
 
-    <div class="form-group">
-        <label for="id_sepal_width">{{ form.sepal_width.label }}</label>
-        {{ form.sepal_width }}
-        {% if form.sepal_width.errors %}
-            <div class="div-danger">
-                {% for error in form.sepal_width.errors %}
-                    <small>{{ error }}</small>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="id_petal_length">{{ form.petal_length.label }}</label>
-        {{ form.petal_length }}
-        {% if form.petal_length.errors %}
-            <div class="div-danger">
-                {% for error in form.petal_length.errors %}
-                    <small>{{ error }}</small>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="id_petal_width">{{ form.petal_width.label }}</label>
-        {{ form.petal_width }}
-        {% if form.petal_width.errors %}
-            <div class="div-danger">
-                {% for error in form.petal_width.errors %}
-                    <small>{{ error }}</small>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="id_species">{{ form.species.label }}</label>
-        {{ form.species }}
-        {% if form.species.errors %}
-            <div class="div-danger">
-                {% for error in form.species.errors %}
-                    <small>{{ error }}</small>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="id_lab">{{ form.lab.label }}</label>
-        {{ form.lab }}
-        {% if form.lab.errors %}
-            <div class="div-danger">
-                {% for error in form.lab.errors %}
-                    <small>{{ error }}</small>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    {% if form.non_field_errors %}
-        <div class="div-danger">
-            {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
+        <div class="form-group">
+            <label for="id_sepal_length">{{ form.sepal_length.label }}</label>
+            {{ form.sepal_length }}
+            {% if form.sepal_length.errors %}
+                <div class="div-danger">
+                    {% for error in form.sepal_length.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
 
-    <div class="btn-group">
-        <button type="submit" class="btn btn-success">💾 Kaydet</button>
-        <a href="{% url 'iris_list' %}" class="btn">❌ İptal</a>
+        <div class="form-group">
+            <label for="id_sepal_width">{{ form.sepal_width.label }}</label>
+            {{ form.sepal_width }}
+            {% if form.sepal_width.errors %}
+                <div class="div-danger">
+                    {% for error in form.sepal_width.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_petal_length">{{ form.petal_length.label }}</label>
+            {{ form.petal_length }}
+            {% if form.petal_length.errors %}
+                <div class="div-danger">
+                    {% for error in form.petal_length.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_petal_width">{{ form.petal_width.label }}</label>
+            {{ form.petal_width }}
+            {% if form.petal_width.errors %}
+                <div class="div-danger">
+                    {% for error in form.petal_width.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_species">{{ form.species.label }}</label>
+            {{ form.species }}
+            {% if form.species.errors %}
+                <div class="div-danger">
+                    {% for error in form.species.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_lab">{{ form.lab.label }}</label>
+            {{ form.lab }}
+            {% if form.lab.errors %}
+                <div class="div-danger">
+                    {% for error in form.lab.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success">💾 Save</button>
+            <a href="{% url 'iris_list' %}" class="btn">❌ Cancel</a>
+        </div>
     </div>
 </form>
 

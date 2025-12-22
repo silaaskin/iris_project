@@ -1,38 +1,40 @@
-# urls.py
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .viewset import IrisViewSet # DÜZELTİLDİ: viewsets -> viewset (tekil)
+# BURAYI DÜZELTTİK: .viewsets (çoğul) yerine .viewset (tekil) yaptık
+from .viewset import IrisViewSet, LaboratoryViewSet 
 
-# API Router
+# REST API Router
 router = DefaultRouter()
-router.register(r'iris', IrisViewSet, basename='iris')
+router.register(r'iris', IrisViewSet, basename='iris-api')
+router.register(r'laboratories', LaboratoryViewSet, basename='lab-api')
 
 urlpatterns = [
-    # Başlangıç
+    # Dashboard / Ana Sayfa
     path('', views.iris_list, name='iris_list'),
     
-    # Iris CRUD
+    # Iris CRUD Operations
     path('iris/new/', views.iris_create, name='iris_create'),
     path('iris/<int:pk>/', views.iris_detail, name='iris_detail'),
     path('iris/<int:pk>/edit/', views.iris_update, name='iris_update'),
     path('iris/<int:pk>/delete/', views.iris_delete, name='iris_delete'),
     
-    # Arama
+    # Search
     path('search/', views.iris_search, name='iris_search'),
     
-    # CSV
+    # CSV Import/Export
     path('export/', views.export_iris_csv, name='export_csv'),
     path('import/', views.import_iris_csv, name='import_csv'),
     
-    # ML Tahmin
+    # Machine Learning Prediction
     path('predict/', views.iris_predict, name='iris_predict'),
     
-    # Kullanıcı
+    # User Authentication
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     
-    # API
+    # REST API Endpoints
     path('api/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls')),
 ]

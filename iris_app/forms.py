@@ -10,7 +10,7 @@ class RegisterForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={
             'class': 'form-input',
-            'placeholder': 'E-posta adresi',
+            'placeholder': 'Email address',
             'type': 'email'
         })
     )
@@ -19,7 +19,7 @@ class RegisterForm(UserCreationForm):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Ad'
+            'placeholder': 'First name'
         })
     )
     last_name = forms.CharField(
@@ -27,7 +27,7 @@ class RegisterForm(UserCreationForm):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Soyadı'
+            'placeholder': 'Last name'
         })
     )
     
@@ -37,7 +37,8 @@ class RegisterForm(UserCreationForm):
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'form-input',
-                'placeholder': 'Kullanıcı adı'
+                'placeholder': 'Username',
+                'type': 'text'
             }),
         }
     
@@ -45,12 +46,12 @@ class RegisterForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget = forms.PasswordInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Şifre',
+            'placeholder': 'Password',
             'type': 'password'
         })
         self.fields['password2'].widget = forms.PasswordInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Şifre (Tekrar)',
+            'placeholder': 'Confirm Password',
             'type': 'password'
         })
         self.fields['password1'].help_text = None
@@ -59,7 +60,7 @@ class RegisterForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('Bu e-posta adresi zaten kullanılmakta.')
+            raise forms.ValidationError('This email address is already in use.')
         return email
 
 
@@ -73,35 +74,35 @@ class IrisForm(forms.ModelForm):
                 'class': 'form-input',
                 'step': '0.1',
                 'min': '0',
-                'placeholder': 'Sepal Uzunluğu (cm)',
+                'placeholder': 'Sepal Length (cm)',
                 'type': 'number'
             }),
             'sepal_width': forms.NumberInput(attrs={
                 'class': 'form-input',
                 'step': '0.1',
                 'min': '0',
-                'placeholder': 'Sepal Genişliği (cm)',
+                'placeholder': 'Sepal Width (cm)',
                 'type': 'number'
             }),
             'petal_length': forms.NumberInput(attrs={
                 'class': 'form-input',
                 'step': '0.1',
                 'min': '0',
-                'placeholder': 'Petal Uzunluğu (cm)',
+                'placeholder': 'Petal Length (cm)',
                 'type': 'number'
             }),
             'petal_width': forms.NumberInput(attrs={
                 'class': 'form-input',
                 'step': '0.1',
                 'min': '0',
-                'placeholder': 'Petal Genişliği (cm)',
+                'placeholder': 'Petal Width (cm)',
                 'type': 'number'
             }),
             'species': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-input'
             }),
             'lab': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-input'
             }),
         }
     
@@ -112,25 +113,24 @@ class IrisForm(forms.ModelForm):
         petal_length = cleaned_data.get('petal_length')
         petal_width = cleaned_data.get('petal_width')
         
-        # Tüm değerlerin pozitif olduğunu kontrol et
         for value in [sepal_length, sepal_width, petal_length, petal_width]:
             if value is not None and value < 0:
-                raise forms.ValidationError('Ölçüm değerleri negatif olamaz.')
+                raise forms.ValidationError('Measurement values cannot be negative.')
         
         return cleaned_data
 
 
 class IrisSearchForm(forms.Form):
     """Iris verileri arama formu - 3+ alan"""
-    SPECIES_CHOICES = [('', '--- Tümü ---')] + list(IrisPlant.SPECIES_CHOICES)
+    SPECIES_CHOICES = [('', '--- All Species ---')] + list(IrisPlant.SPECIES_CHOICES)
     
     species = forms.ChoiceField(
         choices=SPECIES_CHOICES,
         required=False,
         widget=forms.Select(attrs={
-            'class': 'form-select'
+            'class': 'form-input'
         }),
-        label='Tür'
+        label='Species'
     )
     
     min_sepal_length = forms.FloatField(
@@ -138,11 +138,11 @@ class IrisSearchForm(forms.Form):
         min_value=0,
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Min Sepal Uzunluğu (cm)',
+            'placeholder': 'Min Sepal Length (cm)',
             'step': '0.1',
             'type': 'number'
         }),
-        label='Min Sepal Uzunluğu'
+        label='Min Sepal Length'
     )
     
     max_sepal_length = forms.FloatField(
@@ -150,11 +150,11 @@ class IrisSearchForm(forms.Form):
         min_value=0,
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Max Sepal Uzunluğu (cm)',
+            'placeholder': 'Max Sepal Length (cm)',
             'step': '0.1',
             'type': 'number'
         }),
-        label='Max Sepal Uzunluğu'
+        label='Max Sepal Length'
     )
     
     min_petal_length = forms.FloatField(
@@ -162,11 +162,11 @@ class IrisSearchForm(forms.Form):
         min_value=0,
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Min Petal Uzunluğu (cm)',
+            'placeholder': 'Min Petal Length (cm)',
             'step': '0.1',
             'type': 'number'
         }),
-        label='Min Petal Uzunluğu'
+        label='Min Petal Length'
     )
     
     max_petal_length = forms.FloatField(
@@ -174,42 +174,42 @@ class IrisSearchForm(forms.Form):
         min_value=0,
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
-            'placeholder': 'Max Petal Uzunluğu (cm)',
+            'placeholder': 'Max Petal Length (cm)',
             'step': '0.1',
             'type': 'number'
         }),
-        label='Max Petal Uzunluğu'
+        label='Max Petal Length'
     )
     
     lab = forms.ModelChoiceField(
         queryset=Laboratory.objects.all(),
         required=False,
-        empty_label='--- Tüm Laboratuvarlar ---',
+        empty_label='--- All Laboratories ---',
         widget=forms.Select(attrs={
-            'class': 'form-select'
+            'class': 'form-input'
         }),
-        label='Laboratuvar'
+        label='Laboratory'
     )
 
 
 class IrisImportForm(forms.Form):
     """CSV dosyasını içe aktarmak için form"""
     csv_file = forms.FileField(
-        label='CSV Dosyası',
+        label='CSV File',
         widget=forms.FileInput(attrs={
-            'class': 'form-file',
+            'class': 'form-input',
             'accept': '.csv'
         }),
-        help_text='sepal_length, sepal_width, petal_length, petal_width, species sütunlarını içeren CSV dosyası'
+        help_text='CSV file must contain: sepal_length, sepal_width, petal_length, petal_width, species columns'
     )
     
     def clean_csv_file(self):
         csv_file = self.cleaned_data.get('csv_file')
         if csv_file:
             if not csv_file.name.endswith('.csv'):
-                raise forms.ValidationError('Lütfen .csv dosyası yükleyin.')
-            if csv_file.size > 5 * 1024 * 1024:  # 5MB limit
-                raise forms.ValidationError('Dosya 5MB\'dan küçük olmalı.')
+                raise forms.ValidationError('Please upload a .csv file.')
+            if csv_file.size > 5 * 1024 * 1024:
+                raise forms.ValidationError('File size must be less than 5MB.')
         return csv_file
 
 
@@ -226,10 +226,10 @@ class IrisPredictionForm(forms.Form):
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
             'step': '0.1',
-            'placeholder': 'Sepal Uzunluğu (cm)',
+            'placeholder': 'Sepal Length (cm)',
             'type': 'number'
         }),
-        label='Sepal Uzunluğu (cm)'
+        label='Sepal Length (cm)'
     )
     
     sepal_width = forms.FloatField(
@@ -237,10 +237,10 @@ class IrisPredictionForm(forms.Form):
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
             'step': '0.1',
-            'placeholder': 'Sepal Genişliği (cm)',
+            'placeholder': 'Sepal Width (cm)',
             'type': 'number'
         }),
-        label='Sepal Genişliği (cm)'
+        label='Sepal Width (cm)'
     )
     
     petal_length = forms.FloatField(
@@ -248,10 +248,10 @@ class IrisPredictionForm(forms.Form):
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
             'step': '0.1',
-            'placeholder': 'Petal Uzunluğu (cm)',
+            'placeholder': 'Petal Length (cm)',
             'type': 'number'
         }),
-        label='Petal Uzunluğu (cm)'
+        label='Petal Length (cm)'
     )
     
     petal_width = forms.FloatField(
@@ -259,10 +259,10 @@ class IrisPredictionForm(forms.Form):
         widget=forms.NumberInput(attrs={
             'class': 'form-input',
             'step': '0.1',
-            'placeholder': 'Petal Genişliği (cm)',
+            'placeholder': 'Petal Width (cm)',
             'type': 'number'
         }),
-        label='Petal Genişliği (cm)'
+        label='Petal Width (cm)'
     )
     
     algorithm = forms.ChoiceField(
@@ -270,5 +270,5 @@ class IrisPredictionForm(forms.Form):
         widget=forms.RadioSelect(attrs={
             'class': 'form-radio'
         }),
-        label='Tahmin Algoritması'
+        label='Prediction Algorithm'
     )

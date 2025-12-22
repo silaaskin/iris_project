@@ -1,37 +1,36 @@
-<!-- iris_confirm_delete.html -->
 {% extends 'iris_app/base.html' %}
 {% load static %}
 
-{% block title %}Iris Sil - Yönetim Sistemi{% endblock %}
+{% block title %}Delete Iris - Management System{% endblock %}
 
 {% block content %}
 
 <div style="max-width: 500px; margin: 50px auto;">
     <div class="card">
         <div class="card-header">
-            <h1 style="margin: 0; color: var(--danger-color);">⚠️ Emin misiniz?</h1>
+            <h1 style="margin: 0; color: var(--danger);">⚠️ Are you sure?</h1>
         </div>
 
         <div class="card-body">
             <div class="div-danger">
-                <p><strong>Bu işlem geri alınamaz!</strong></p>
-                <p>Aşağıdaki Iris örneğini silmek üzeresiniz:</p>
+                <p><strong>This action cannot be undone!</strong></p>
+                <p>You are about to delete the following Iris sample:</p>
             </div>
 
-            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid var(--danger-color);">
-                <p><strong>Tür:</strong> {{ plant.get_species_display }}</p>
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid var(--danger);">
+                <p><strong>Species:</strong> {{ plant.get_species_display }}</p>
                 <p><strong>Sepal:</strong> {{ plant.sepal_length }} × {{ plant.sepal_width }} cm</p>
                 <p><strong>Petal:</strong> {{ plant.petal_length }} × {{ plant.petal_width }} cm</p>
                 {% if plant.lab %}
-                    <p><strong>Laboratuvar:</strong> {{ plant.lab.name }}</p>
+                    <p><strong>Laboratory:</strong> {{ plant.lab.name }}</p>
                 {% endif %}
             </div>
 
-            <form method="POST">
+            <form method="POST" novalidate>
                 {% csrf_token %}
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-danger">🗑️ Evet, Sil</button>
-                    <a href="{% url 'iris_detail' plant.pk %}" class="btn">❌ İptal Et</a>
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-danger">🗑️ Yes, Delete It</button>
+                    <a href="{% url 'iris_detail' plant.pk %}" class="btn">❌ Cancel</a>
                 </div>
             </form>
         </div>
