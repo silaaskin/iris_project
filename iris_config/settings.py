@@ -107,10 +107,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ============= LOGIN/LOGOUT AYARLARI =============
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'iris_list'
-LOGOUT_REDIRECT_URL = 'login'
+# ============= LOGIN/LOGOUT AYARLARI (GÜNCELLENDİ) =============
+# URL ismi yerine doğrudan adres ('/login/') veriyoruz ki şaşırmasın.
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'  # Giriş yapınca anasayfaya atar
+LOGOUT_REDIRECT_URL = '/login/' # Çıkış yapınca giriş ekranına atar
 
 # ============= REST FRAMEWORK AYARLARI =============
 REST_FRAMEWORK = {

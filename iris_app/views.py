@@ -3,6 +3,7 @@ import numpy as np
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
+# GÜVENLİK İÇİN user_passes_test EKLENDİ:
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
@@ -10,6 +11,12 @@ from django.contrib import messages
 from django.db.models import Q
 from .forms import IrisForm, RegisterForm
 from .models import IrisPlant, Laboratory
+
+# ============= YETKİ KONTROLÜ (HELPER) =============
+def is_editor_check(user):
+    """Kullanıcı Admin mi veya 'Editor' grubunda mı?"""
+    # is_superuser admin demektir. Gruplarda 'Editor' var mı bakar.
+    return user.is_superuser or user.groups.filter(name='Editor').exists()
 
 # ============= AUTHENTICATION VIEWS =============
 
@@ -70,10 +77,15 @@ def iris_list(request):
     """Ana Iris listesi sayfası"""
     samples = IrisPlant.objects.all().select_related('lab', 'created_by').order_by('-created_at')
     
+    # Kullanıcının yetkisini kontrol edip şablona gönderiyoruz
+    is_editor = is_editor_check(request.user)
+
     context = {
         'samples': samples,
         'total_count': samples.count(),
+        # Hata almamak için güvenli sözlük çevrimi
         'species_types': dict(IrisPlant.SPECIES_CHOICES) if hasattr(IrisPlant, 'SPECIES_CHOICES') else {},
+        'is_editor': is_editor, # Şablonda butonları gizlemek için
     }
     
     return render(request, 'iris_app/iris_list.html', context)
@@ -82,6 +94,7 @@ def iris_list(request):
 # ============= IRIS CRUD VIEWS =============
 
 @login_required(login_url='login')
+@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
 def iris_create(request):
     """Yeni Iris kaydı ekleme sayfası"""
     if request.method == "POST":
@@ -111,21 +124,26 @@ def iris_detail(request, pk):
     """Iris detayını görüntüle"""
     plant = get_object_or_404(IrisPlant, pk=pk)
     
+    # Detay sayfasında da editörlük kontrolü için
+    is_editor = is_editor_check(request.user)
+    
     context = {
         'plant': plant,
-        'can_edit': plant.created_by == request.user or request.user.is_staff
+        # Düzenleyebilmesi için: Hem Editör olmalı, hem de (Kendi kaydı VEYA Admin olmalı)
+        'can_edit': is_editor and (plant.created_by == request.user or request.user.is_superuser)
     }
     
     return render(request, 'iris_app/iris_detail.html', context)
 
 
 @login_required(login_url='login')
+@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
 def iris_update(request, pk):
     """Iris kaydını düzenleme sayfası"""
     plant = get_object_or_404(IrisPlant, pk=pk)
     
-    # Sadece oluşturan kişi veya staff düzenleyebilir
-    if plant.created_by != request.user and not request.user.is_staff:
+    # Sadece oluşturan kişi veya superuser düzenleyebilir
+    if plant.created_by != request.user and not request.user.is_superuser:
         messages.error(request, 'Bu kaydı düzenleme yetkiniz yok.')
         return redirect('iris_list')
     
@@ -151,12 +169,13 @@ def iris_update(request, pk):
 
 
 @login_required(login_url='login')
+@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
 def iris_delete(request, pk):
     """Iris kaydını silme sayfası"""
     plant = get_object_or_404(IrisPlant, pk=pk)
     
-    # Sadece oluşturan kişi veya staff silebilir
-    if plant.created_by != request.user and not request.user.is_staff:
+    # Sadece oluşturan kişi veya superuser silebilir
+    if plant.created_by != request.user and not request.user.is_superuser:
         messages.error(request, 'Bu kaydı silme yetkiniz yok.')
         return redirect('iris_list')
     
@@ -198,7 +217,7 @@ def iris_search(request):
                 results = results.filter(sepal_length__gte=float(min_sepal_length))
             except ValueError:
                 pass
-        
+        # ... Diğer filtreler aynı kalabilir ...
         if max_sepal_length:
             try:
                 results = results.filter(sepal_length__lte=float(max_sepal_length))
@@ -236,6 +255,7 @@ def iris_search(request):
 # ============= IMPORT/EXPORT VIEWS =============
 
 @login_required(login_url='login')
+@user_passes_test(is_editor_check, login_url='login') # SADECE EDITORLER
 def import_iris_csv(request):
     """CSV dosyasını içe aktarma"""
     if request.method == "POST" and request.FILES.get('csv_file'):
@@ -248,15 +268,11 @@ def import_iris_csv(request):
             imported_count = 0
             error_count = 0
             
-            # SPECIES_CHOICES kontrolü
             species_dict = dict(IrisPlant.SPECIES_CHOICES) if hasattr(IrisPlant, 'SPECIES_CHOICES') else {}
 
             for row in reader:
                 try:
-                    # Gerekli alanları kontrol et
                     species = row.get('species', '').lower().strip()
-                    
-                    # Eğer species_choices tanımlıysa kontrol et, yoksa direkt kaydet
                     if species_dict and species not in species_dict.keys():
                         error_count += 1
                         continue
@@ -292,8 +308,6 @@ def export_iris_csv(request):
     """Iris verileri CSV olarak dışa aktar"""
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="iris_export.csv"'
-    
-    # BOM eklenerek Excel'de Türkçe karakterleri düzgün göster
     response.write('\ufeff')
     
     writer = csv.writer(response)

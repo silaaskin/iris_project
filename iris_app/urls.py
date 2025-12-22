@@ -2,7 +2,7 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .viewsets import IrisViewSet
+from .viewset import IrisViewSet # DÜZELTİLDİ: viewsets -> viewset (tekil)
 
 # API Router
 router = DefaultRouter()

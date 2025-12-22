@@ -7,31 +7,30 @@
 
 <h1>📊 Iris Veri Listesi</h1>
 
-<!-- ============= İNFO DIV ============= -->
 <div class="div-info">
     <h3>ℹ️ Bilgiler</h3>
     <p>Bu proje <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI Iris Veri Seti</a>'ni kullanarak geliştirilmiştir. Toplam <strong>{{ total_count }}</strong> Iris örneği bulunmaktadır.</p>
 </div>
 
-<!-- ============= İŞLEM BUTONLARI ============= -->
 <div class="div-section">
     <h2>İşlemler</h2>
     <div class="btn-group">
-        <a href="{% url 'iris_create' %}" class="btn btn-success">➕ Yeni Iris Ekle</a>
         <a href="{% url 'iris_search' %}" class="btn btn-info">🔍 Detaylı Arama</a>
-        <a href="{% url 'export_csv' %}" class="btn">⬇️ CSV İndir</a>
-        <a href="{% url 'import_csv' %}" class="btn btn-warning">⬆️ CSV Yükle</a>
         <a href="{% url 'iris_predict' %}" class="btn btn-danger">🤖 ML Tahmin</a>
+
+        {% if is_editor %}
+            <a href="{% url 'export_csv' %}" class="btn">⬇️ CSV İndir</a>
+            <a href="{% url 'iris_create' %}" class="btn btn-success">➕ Yeni Iris Ekle</a>
+            <a href="{% url 'import_csv' %}" class="btn btn-warning">⬆️ CSV Yükle</a>
+        {% endif %}
     </div>
 </div>
 
-<!-- ============= TABLONUN ÜSTÜ DIV ============= -->
 <div class="div-highlight">
     <h3>Kayıt Edilen Örnekler</h3>
     <p>Aşağıda tüm Iris örnekleri gösterilmektedir. Detay görmek, düzenlemek veya silmek için ilgili bağlantıya tıklayın.</p>
 </div>
 
-<!-- ============= TABLO ============= -->
 {% if samples %}
     <table>
         <thead>
@@ -65,11 +64,14 @@
                 <td>
                     <div class="table-actions">
                         <a href="{% url 'iris_detail' sample.pk %}" class="edit">Detay</a>
-                        {% if sample.created_by == user or user.is_staff %}
-                            <a href="{% url 'iris_update' sample.pk %}" class="edit">Düzenle</a>
-                            <a href="{% url 'iris_delete' sample.pk %}" class="delete">Sil</a>
-                        {% else %}
-                            <span style="color: #999; font-size: 12px;">Yetkisiz</span>
+                        
+                        {% if is_editor %}
+                            {% if sample.created_by == user or user.is_superuser %}
+                                <a href="{% url 'iris_update' sample.pk %}" class="edit">Düzenle</a>
+                                <a href="{% url 'iris_delete' sample.pk %}" class="delete">Sil</a>
+                            {% else %}
+                                <span style="color: #999; font-size: 12px;">(Yetkisiz)</span>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </td>
@@ -80,16 +82,21 @@
 {% else %}
     <div class="div-danger">
         <h3>⚠️ Veri Bulunamadı</h3>
-        <p>Henüz hiç Iris örneği kaydedilmemiştir. <a href="{% url 'iris_create' %}">Yeni bir kayıt eklemek</a> veya <a href="{% url 'import_csv' %}">CSV dosyası yüklemek</a> için tıklayın.</p>
+        <p>Henüz hiç Iris örneği kaydedilmemiştir. 
+        {% if is_editor %}
+            <a href="{% url 'iris_create' %}">Yeni bir kayıt eklemek</a> veya <a href="{% url 'import_csv' %}">CSV dosyası yüklemek</a> için tıklayın.
+        {% else %}
+            Yetkili bir kullanıcı veri ekleyene kadar bekleyin.
+        {% endif %}
+        </p>
     </div>
 {% endif %}
 
-<!-- ============= ALT DIV - İSTATİSTİKLER ============= -->
 <div class="div-section" style="margin-top: 30px;">
     <h2>📈 İstatistikler</h2>
     <ul>
         <li><strong>Toplam Iris Örneği:</strong> {{ total_count }}</li>
-        <li><strong>Kullanıcılarınızın Kayıtları:</strong> {{ user.iris_plants.count }}</li>
+        <li><strong>Kullanıcılarınızın Kayıtları:</strong> {{ user.irisplant_set.count }}</li>
         <li><strong>Disponible Türler:</strong> 
             {% for species, display_name in species_types.items %}
                 <span style="background: #ecf0f1; padding: 4px 8px; border-radius: 4px; margin: 2px;">{{ display_name }}</span>
@@ -98,13 +105,14 @@
     </ul>
 </div>
 
-<!-- ============= BAŞKA SAYFALARA LİNKLER ============= -->
 <div class="div-section">
     <h2>🔗 Hızlı Bağlantılar</h2>
     <ol>
-        <li><a href="{% url 'iris_create' %}">Yeni Iris Örneği Ekle</a></li>
+        {% if is_editor %}
+            <li><a href="{% url 'iris_create' %}">Yeni Iris Örneği Ekle</a></li>
+            <li><a href="{% url 'import_csv' %}">CSV Dosyasından İçe Aktar</a></li>
+        {% endif %}
         <li><a href="{% url 'iris_search' %}">Iris Örneklerinde Arama Yap</a></li>
-        <li><a href="{% url 'import_csv' %}">CSV Dosyasından İçe Aktar</a></li>
         <li><a href="{% url 'iris_predict' %}">Makine Öğrenmesi ile Tahmin Yap</a></li>
         <li><a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">Orijinal UCI Dataset</a></li>
     </ol>
