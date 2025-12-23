@@ -396,4 +396,4 @@ def iris_predict(request):
         'error_message': error_message,
     }
     
-    return render(request, 'iris_app/iris_predict.html', context)
+    return render(request, 'iris_app/predict.html', context)

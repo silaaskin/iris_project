@@ -57,12 +57,14 @@ header h1 {
     font-weight: 600;
     margin: 0;
     letter-spacing: 1px;
+    color: white;
 }
 
 header nav {
     display: flex;
     gap: 25px;
     align-items: center;
+    
 }
 
 header nav a,
@@ -132,6 +134,8 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
     font-size: 32px;
+    
+    
 }
 
 h2 {
@@ -142,6 +146,7 @@ h2 {
 
 h3 {
     font-size: 20px;
+    
 }
 
 p {
@@ -589,6 +594,7 @@ footer p {
 
     header h1 {
         font-size: 22px;
+        
     }
 
     header nav {

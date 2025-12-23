@@ -24,9 +24,9 @@
                 {% if plant.species == 'setosa' %}
                     <img src="{% static 'images/setosa.jpg' %}" alt="Iris Setosa - Small purple flower with short petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 {% elif plant.species == 'versicolor' %}
-                    <img src="{% static 'images/versicolor.jpg' %}" alt="Iris Versicolor - Medium purple flower with medium petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <img src="{% static 'images/versicolor.jpeg' %}" alt="Iris Versicolor - Medium purple flower with medium petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 {% else %}
-                    <img src="{% static 'images/virginica.jpg' %}" alt="Iris Virginica - Large purple flower with long petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <img src="{% static 'images/virginica.jpeg' %}" alt="Iris Virginica - Large purple flower with long petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 {% endif %}
                 <h3 style="margin-top: 1rem;">{{ plant.get_species_display }}</h3>
             </div>
