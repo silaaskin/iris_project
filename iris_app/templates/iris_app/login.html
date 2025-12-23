@@ -211,9 +211,10 @@
 
 <div class="auth-card">
     <div class="auth-header">
+        <img src="{% static 'images/iris-logo.png' %}" alt="Login Logo" style="width: 60px; margin-bottom: 10px;">
         <h1>Sign In</h1>
         <p>Iris Data Management System</p>
-    </div>
+</div>
 
     <div class="auth-body">
         {% if messages %}
@@ -268,6 +269,10 @@
             </div>
 
             <button type="submit" class="btn-login">Sign In</button>
+            
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'password_reset' %}" style="font-size: 0.9rem; color: var(--primary-light);">Forgot Password?</a>
+            </div>
         </form>
     </div>
 
