@@ -19,6 +19,8 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+        # Local apps
+    'iris_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -28,9 +30,7 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',  # DRF - API için
-    
-    # Local apps
-    'iris_app',
+
 ]
 
 MIDDLEWARE = [
