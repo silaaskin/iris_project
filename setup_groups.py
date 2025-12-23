@@ -66,6 +66,6 @@ reader_permissions = [
 
 reader_group.permissions.set(reader_permissions)
 
-print("✅ Gruplar başarıyla oluşturuldu!")
-print(f"✅ Editor Grubu: {editor_group.permissions.count()} permission ile")
-print(f"✅ Reader Grubu: {reader_group.permissions.count()} permission ile")
+print("✅ Groups created successfully!")
+print(f"✅ Editor Group: with {editor_group.permissions.count()} permissions")
+print(f"✅ Reader Group: with {reader_group.permissions.count()} permissions")

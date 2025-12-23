@@ -5,7 +5,7 @@ from .models import IrisPlant, Laboratory
 
 
 class RegisterForm(UserCreationForm):
-    """Kullanıcı kayıt formu"""
+    """User registration form"""
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
@@ -65,7 +65,7 @@ class RegisterForm(UserCreationForm):
 
 
 class IrisForm(forms.ModelForm):
-    """Iris verilerini eklemek/düzenlemek için form"""
+    """Form for adding/editing Iris data"""
     class Meta:
         model = IrisPlant
         fields = ('sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species', 'lab')
@@ -121,7 +121,7 @@ class IrisForm(forms.ModelForm):
 
 
 class IrisSearchForm(forms.Form):
-    """Iris verileri arama formu - 3+ alan"""
+    """Iris data search form"""
     SPECIES_CHOICES = [('', '--- All Species ---')] + list(IrisPlant.SPECIES_CHOICES)
     
     species = forms.ChoiceField(
@@ -193,7 +193,7 @@ class IrisSearchForm(forms.Form):
 
 
 class IrisImportForm(forms.Form):
-    """CSV dosyasını içe aktarmak için form"""
+    """Form for importing CSV files"""
     csv_file = forms.FileField(
         label='CSV File',
         widget=forms.FileInput(attrs={
@@ -214,7 +214,7 @@ class IrisImportForm(forms.Form):
 
 
 class IrisPredictionForm(forms.Form):
-    """Makine öğrenmesi tahminleri için form"""
+    """Form for machine learning predictions"""
     ALGORITHM_CHOICES = [
         ('logistic', 'Logistic Regression'),
         ('knn', 'K-Nearest Neighbors (KNN)'),

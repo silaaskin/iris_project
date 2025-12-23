@@ -4,38 +4,38 @@ from .models import IrisPlant, Laboratory
 
 @admin.register(Laboratory)
 class LaboratoryAdmin(admin.ModelAdmin):
-    """Laboratuvar Modeli Admin Paneli"""
+    """Admin View for Laboratory Model"""
     list_display = ('name', 'city', 'country', 'phone', 'iris_count', 'created_at')
     list_filter = ('city', 'country', 'created_at')
     search_fields = ('name', 'city', 'email')
     readonly_fields = ('created_at', 'updated_at', 'iris_count')
     
     fieldsets = (
-        ('Temel Bilgiler', {
+        ('Basic Information', {
             'fields': ('name', 'city', 'country', 'established_year')
         }),
-        ('İletişim Bilgileri', {
+        ('Contact Information', {
             'fields': ('phone', 'email')
         }),
-        ('Açıklama', {
+        ('Description', {
             'fields': ('description',)
         }),
-        ('Sistem Bilgileri', {
+        ('System Information', {
             'fields': ('iris_count', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
     
     def iris_count(self, obj):
-        """Bu laboratuvardaki Iris örnek sayısını göster"""
+        """Show count of Iris samples in this laboratory"""
         count = obj.iris_plants.count()
-        return f"{count} örnek"
-    iris_count.short_description = "Iris Örnek Sayısı"
+        return f"{count} samples"
+    iris_count.short_description = "Iris Sample Count"
 
 
 @admin.register(IrisPlant)
 class IrisPlantAdmin(admin.ModelAdmin):
-    """Iris Bitki Modeli Admin Paneli"""
+    """Admin View for Iris Plant Model"""
     list_display = ('get_species_display', 'sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'lab', 'created_by', 'created_at')
     list_filter = ('species', 'lab', 'created_by', 'created_at')
     search_fields = ('species', 'lab__name', 'created_by__username')
@@ -43,24 +43,24 @@ class IrisPlantAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
     
     fieldsets = (
-        ('Türü', {
+        ('Species', {
             'fields': ('species',)
         }),
-        ('Ölçümler (cm)', {
+        ('Measurements (cm)', {
             'fields': ('sepal_length', 'sepal_width', 'petal_length', 'petal_width'),
-            'description': 'Tüm ölçümler santimetre (cm) cinsinden olmalıdır'
+            'description': 'All measurements must be in centimeters (cm)'
         }),
-        ('Laboratuvar', {
+        ('Laboratory', {
             'fields': ('lab',)
         }),
-        ('Sistem Bilgileri', {
+        ('System Information', {
             'fields': ('created_by', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
     
     def save_model(self, request, obj, form, change):
-        """Yeni kayıt oluştururken created_by'ı otomatik set et"""
+        """Automatically set created_by when creating a new record"""
         if not change:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)

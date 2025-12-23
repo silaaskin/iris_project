@@ -4,51 +4,51 @@ from django.core.validators import MinValueValidator
 
 class Laboratory(models.Model):
     """
-    Laboratuvar modeli - İkinci model olarak hizmet eder
-    Many-to-One ilişkisi: Bir laboratuvarda birçok Iris örneği olabilir
+    Laboratory model - Serves as the second model
+    Many-to-One relationship: One laboratory can have multiple Iris samples
     """
     name = models.CharField(
         max_length=100,
-        verbose_name="Laboratuvar Adı",
+        verbose_name="Laboratory Name",
         unique=True
     )
     city = models.CharField(
         max_length=50,
-        verbose_name="Şehir"
+        verbose_name="City"
     )
     description = models.TextField(
         blank=True,
         null=True,
-        verbose_name="Açıklama"
+        verbose_name="Description"
     )
     phone = models.CharField(
         max_length=20,
         blank=True,
         null=True,
-        verbose_name="Telefon"
+        verbose_name="Phone"
     )
     email = models.EmailField(
         blank=True,
         null=True,
-        verbose_name="E-posta"
+        verbose_name="Email"
     )
     country = models.CharField(
         max_length=50,
         default="Turkey",
-        verbose_name="Ülke"
+        verbose_name="Country"
     )
     established_year = models.IntegerField(
         blank=True,
         null=True,
-        verbose_name="Kuruluş Yılı"
+        verbose_name="Established Year"
     )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Laboratuvar'
-        verbose_name_plural = 'Laboratuvarlar'
+        verbose_name = 'Laboratory'
+        verbose_name_plural = 'Laboratories'
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['city']),
@@ -59,15 +59,15 @@ class Laboratory(models.Model):
 
     @property
     def iris_count(self):
-        """Bu laboratuvardaki Iris sayısını döndür"""
+        """Returns the count of Iris samples in this laboratory"""
         return self.iris_plants.count()
 
 
 class IrisPlant(models.Model):
     """
-    Iris bitki verilerini depolayan ana model
-    UCI Iris Dataset'ine uygun şekilde tasarlandı
-    ForeignKey ile Laboratory'ye bağlı (Many-to-One ilişki)
+    Main model storing Iris plant data
+    Designed according to the UCI Iris Dataset
+    Connected to Laboratory via ForeignKey (Many-to-One relationship)
     """
     SPECIES_CHOICES = [
         ('setosa', 'Iris Setosa'),
@@ -75,69 +75,65 @@ class IrisPlant(models.Model):
         ('virginica', 'Iris Virginica'),
     ]
     
-    # Ölçüm Alanları
     sepal_length = models.FloatField(
-        verbose_name="Sepal Uzunluğu (cm)",
+        verbose_name="Sepal Length (cm)",
         validators=[MinValueValidator(0.0)],
-        help_text="Sepal yapraklarının uzunluğu (santimetre cinsinden)"
+        help_text="Length of the sepal (in cm)"
     )
     sepal_width = models.FloatField(
-        verbose_name="Sepal Genişliği (cm)",
+        verbose_name="Sepal Width (cm)",
         validators=[MinValueValidator(0.0)],
-        help_text="Sepal yapraklarının genişliği (santimetre cinsinden)"
+        help_text="Width of the sepal (in cm)"
     )
     petal_length = models.FloatField(
-        verbose_name="Petal Uzunluğu (cm)",
+        verbose_name="Petal Length (cm)",
         validators=[MinValueValidator(0.0)],
-        help_text="Petal yapraklarının uzunluğu (santimetre cinsinden)"
+        help_text="Length of the petal (in cm)"
     )
     petal_width = models.FloatField(
-        verbose_name="Petal Genişliği (cm)",
+        verbose_name="Petal Width (cm)",
         validators=[MinValueValidator(0.0)],
-        help_text="Petal yapraklarının genişliği (santimetre cinsinden)"
+        help_text="Width of the petal (in cm)"
     )
     
-    # Tür Alanı
     species = models.CharField(
         max_length=50,
         choices=SPECIES_CHOICES,
-        verbose_name="Tür",
-        help_text="Iris bitki türü (setosa, versicolor veya virginica)"
+        verbose_name="Species",
+        help_text="Iris plant species (setosa, versicolor or virginica)"
     )
     
-    # İlişki Alanları
     lab = models.ForeignKey(
         Laboratory,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name="Laboratuvar",
+        verbose_name="Laboratory",
         related_name='iris_plants',
-        help_text="Bu örneğin kaynağı olan laboratuvar"
+        help_text="Source laboratory of this sample"
     )
     
     created_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name="Oluşturan Kullanıcı",
+        verbose_name="Created By",
         related_name='iris_plants',
-        help_text="Bu kaydı oluşturan kullanıcı"
+        help_text="User who created this record"
     )
     
-    # Tarih Alanları
     created_at = models.DateTimeField(
         auto_now_add=True,
-        verbose_name="Oluşturulma Tarihi"
+        verbose_name="Created At"
     )
     updated_at = models.DateTimeField(
         auto_now=True,
-        verbose_name="Güncellenme Tarihi"
+        verbose_name="Updated At"
     )
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Iris Örneği'
-        verbose_name_plural = 'Iris Örnekleri'
+        verbose_name = 'Iris Sample'
+        verbose_name_plural = 'Iris Samples'
         indexes = [
             models.Index(fields=['species']),
             models.Index(fields=['created_at']),
@@ -148,5 +144,5 @@ class IrisPlant(models.Model):
         return f"{self.get_species_display()} - {self.sepal_length}cm x {self.sepal_width}cm"
     
     def get_species_display_tr(self):
-        """Türün Türkçe adını döndür"""
+        """Returns the display name of the species"""
         return dict(self.SPECIES_CHOICES).get(self.species, self.species)

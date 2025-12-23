@@ -68,8 +68,8 @@ if existing == 0:
     # Laboratuvarları oluştur
     for lab_data in laboratories_data:
         lab = Laboratory.objects.create(**lab_data)
-        print(f"✅ {lab.name} oluşturuldu")
+        print(f"✅ {lab.name} created")
     
-    print(f"\n✅ Toplam {len(laboratories_data)} laboratuvar eklendi!")
+    print(f"\n✅ Toplam {len(laboratories_data)} laboratories added successfully!")
 else:
-    print(f"⚠️ Zaten {existing} laboratuvar mevcut.")
+    print(f"⚠️ Zaten {existing} laboratories already exist in the database.")
