@@ -17,7 +17,7 @@
     <div class="card-body">
         {% if form.non_field_errors %}
             <div class="div-danger">
-                <h3>❌ Errors</h3>
+                <h3>Errors</h3>
                 {% for error in form.non_field_errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
@@ -99,8 +99,8 @@
 
     <div class="card-footer">
         <div class="btn-group">
-            <button type="submit" class="btn btn-success">💾 Save</button>
-            <a href="{% url 'iris_list' %}" class="btn">❌ Cancel</a>
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{% url 'iris_list' %}" class="btn">Cancel</a>
         </div>
     </div>
 </form>

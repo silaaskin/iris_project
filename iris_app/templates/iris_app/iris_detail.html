@@ -6,11 +6,14 @@
 {% block content %}
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1>📋 Iris Sample Details</h1>
+    <h1 style="display: flex; align-items: center; gap: 10px; margin: 0;">
+    <img src="{% static 'images/detail.png' %}" alt="Detail Icon" style="width: 35px; height: 35px;" onerror="this.style.display='none'">
+    Iris Sample Details
+</h1>
     {% if can_edit %}
         <div class="btn-group">
-            <a href="{% url 'iris_update' plant.pk %}" class="btn btn-info">✏️ Edit</a>
-            <a href="{% url 'iris_delete' plant.pk %}" class="btn btn-danger">🗑️ Delete</a>
+            <a href="{% url 'iris_update' plant.pk %}" class="btn btn-info"> Edit</a>
+            <a href="{% url 'iris_delete' plant.pk %}" class="btn btn-danger"> Delete</a>
         </div>
     {% endif %}
 </div>
@@ -26,7 +29,7 @@
                 {% elif plant.species == 'versicolor' %}
                     <img src="{% static 'images/versicolor.jpeg' %}" alt="Iris Versicolor - Medium purple flower with medium petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 {% else %}
-                    <img src="{% static 'images/virginica.jpeg' %}" alt="Iris Virginica - Large purple flower with long petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <img src="{% static 'images/virginia.jpeg' %}" alt="Iris Virginica - Large purple flower with long petals" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 {% endif %}
                 <h3 style="margin-top: 1rem;">{{ plant.get_species_display }}</h3>
             </div>
@@ -35,7 +38,10 @@
             <div>
                 <!-- SPECIES INFO -->
                 <div class="div-section">
-                    <h3>🌿 Species Information</h3>
+                    <h2 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+    <img src="{% static 'images/flower.png' %}" alt="Species Icon" style="width: 28px; height: 28px;" onerror="this.style.display='none'">
+    Species Information
+</h2>
                     <table>
                         <tr>
                             <td style="font-weight: bold; width: 40%;">Species Name:</td>
@@ -50,7 +56,10 @@
 
                 <!-- MEASUREMENTS -->
                 <div class="div-section">
-                    <h3>📏 Physical Measurements (cm)</h3>
+                    <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+                        <img src="{% static 'images/measuring-device.png' %}" alt="Idea Icon" style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+                        Physical Measurements (cm)
+                    </h3>
                     <table>
                         <tr>
                             <td style="font-weight: bold; width: 40%;">Sepal Length:</td>
@@ -73,7 +82,10 @@
 
                 <!-- LABORATORY INFO -->
                 <div class="div-section">
-                    <h3>🏢 Laboratory Information</h3>
+                    <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+                    <img src="{% static 'images/science-book.png' %}" alt="Science Icon" style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+                    Laboratory Information
+                </h3>
                     {% if plant.lab %}
                         <table>
                             <tr>
@@ -96,7 +108,10 @@
 
                 <!-- SYSTEM INFO -->
                 <div class="div-section">
-                    <h3>⚙️ System Information</h3>
+                    <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+                    <img src="{% static 'images/information.png' %}" alt="Idea Icon" style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+                    System Information
+                </h3>
                     <table>
                         <tr>
                             <td style="font-weight: bold; width: 40%;">Created By:</td>
@@ -117,11 +132,11 @@
     </div>
 
     <div class="card-footer">
-        <a href="{% url 'iris_list' %}" class="btn">⬅️ Back to List</a>
+        <a href="{% url 'iris_list' %}" class="btn"> Back to List</a>
         {% if can_edit %}
             <div class="btn-group" style="margin: 0;">
-                <a href="{% url 'iris_update' plant.pk %}" class="btn btn-info">✏️ Edit</a>
-                <a href="{% url 'iris_delete' plant.pk %}" class="btn btn-danger">🗑️ Delete</a>
+                <a href="{% url 'iris_update' plant.pk %}" class="btn btn-info"> Edit</a>
+                <a href="{% url 'iris_delete' plant.pk %}" class="btn btn-danger"> Delete</a>
             </div>
         {% endif %}
     </div>
@@ -129,7 +144,7 @@
 
 <!-- SIMILAR SAMPLES -->
 <div class="div-section" style="margin-top: 30px;">
-    <h2>🔄 Similar Iris Samples</h2>
+    <h2>Similar Iris Samples</h2>
     <p>To view other samples of {{ plant.get_species_display }}, you can use the <a href="{% url 'iris_search' %}?species={{ plant.species }}">search function</a> to filter by species.</p>
 </div>
 

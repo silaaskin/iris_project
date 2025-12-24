@@ -5,16 +5,24 @@
 
 {% block content %}
 
-<h1>📊 Iris Data List</h1>
+<h1 style="display: flex; align-items: center; gap: 10px;">
+    <img src="{% static 'images/stock-market.png' %}" alt="Iris Icon" style="width: 35px; height: 35px;">
+    Iris Data List
+</h1>
 
 <div class="div-info">
-    <h3>ℹ️ Information</h3>
+    <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <img src="{% static 'images/warning.png' %}" alt="Species Icon" style="width: 28px; height: 28px;" onerror="this.style.display='none'">
+        Species Information
+    </h3>
     <p>This project uses the <a href="https://archive.ics.uci.edu/ml/datasets/iris" target="_blank">UCI Iris Dataset</a>. Total <strong>{{ total_count }}</strong> Iris samples are stored in the system.</p>
 </div>
 
-<!-- IRIS SPECIES IMAGES -->
 <div class="div-section">
-    <h2>🌿 Iris Species</h2>
+    <h2 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <img src="{% static 'images/flower.png' %}" alt="Species Icon" style="width: 28px; height: 28px;" onerror="this.style.display='none'">
+        Iris Species
+    </h2>
     <div class="gallery">
         <div style="text-align: center;">
             <img src="{% static 'images/setosa.jpg' %}" alt="Iris Setosa - Small purple flower with short petals" style="width: 100%; height: 200px; object-fit: cover;">
@@ -35,20 +43,41 @@
 </div>
 
 <div class="div-section">
-    <h2>⚙️ Actions</h2>
+    <h2 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <img src="{% static 'images/call-to-action.png' %}" alt="Actions Icon" style="width: 28px; height: 28px;" onerror="this.style.display='none'">
+        Actions
+    </h2>
     <div class="btn-group">
-        <a href="{% url 'iris_search' %}" class="btn btn-info">🔍 Advanced Search</a>
-        <a href="{% url 'iris_predict' %}" class="btn btn-danger">🤖 ML Prediction</a>
+        <a href="{% url 'iris_search' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+            <img src="{% static 'images/searchs.png' %}" alt="CSV" style="width: 20px; height: 20px;" onerror="this.style.display='none'">
+            Advanced Search
+        </a>
+        <a href="{% url 'iris_predict' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+            <img src="{% static 'images/machine-learning.png' %}" alt="CSV" style="width: 20px; height: 20px;" onerror="this.style.display='none'">
+            ML Prediction
+        </a>
         {% if is_editor %}
-            <a href="{% url 'export_csv' %}" class="btn">⬇️ Export CSV</a>
-            <a href="{% url 'iris_create' %}" class="btn btn-success">➕ Add New Iris</a>
-            <a href="{% url 'import_csv' %}" class="btn btn-warning">⬆️ Import CSV</a>
+            <a href="{% url 'export_csv' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                <img src="{% static 'images/share.png' %}" alt="CSV" style="width: 20px; height: 20px;" onerror="this.style.display='none'">
+                Export CSV
+            </a>
+            <a href="{% url 'iris_create' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                <img src="{% static 'images/new.png' %}" alt="CSV" style="width: 20px; height: 20px;" onerror="this.style.display='none'">
+                Add New Iris
+            </a>
+            <a href="{% url 'import_csv' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                <img src="{% static 'images/inbox.png' %}" alt="CSV" style="width: 20px; height: 20px;" onerror="this.style.display='none'">
+                Import CSV
+            </a>
         {% endif %}
     </div>
 </div>
 
 <div class="div-highlight">
-    <h3>📝 Recorded Samples</h3>
+    <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <img src="{% static 'images/notepad.png' %}" alt="Actions Icon" style="width: 28px; height: 28px;" onerror="this.style.display='none'">
+        Actions
+    </h3>
     <p>Below are all registered Iris samples. Click the links to view details, edit, or delete records.</p>
 </div>
 
@@ -70,14 +99,34 @@
                 <td><strong>{{ sample.get_species_display }}</strong></td>
                 <td>
                     <ul style="margin: 0; list-style: none; padding: 0; font-size: 0.9rem;">
-                        <li>↔️ {{ sample.sepal_length }} cm</li>
-                        <li>↕️ {{ sample.sepal_width }} cm</li>
+                        <li style="margin-bottom: 4px; display: flex; align-items: center;">
+                            <span style="font-weight: bold; color: #2c3e50; width: 20px;">L:</span> 
+                            <span style="background-color: #e8f6f3; padding: 2px 6px; border-radius: 4px; color: #16a085;">
+                                {{ sample.sepal_length }} cm
+                            </span>
+                        </li>
+                        <li style="display: flex; align-items: center;">
+                            <span style="font-weight: bold; color: #2c3e50; width: 20px;">W:</span> 
+                            <span style="background-color: #fef9e7; padding: 2px 6px; border-radius: 4px; color: #d4ac0d;">
+                                {{ sample.sepal_width }} cm
+                            </span>
+                        </li>
                     </ul>
                 </td>
                 <td>
                     <ul style="margin: 0; list-style: none; padding: 0; font-size: 0.9rem;">
-                        <li>↔️ {{ sample.petal_length }} cm</li>
-                        <li>↕️ {{ sample.petal_width }} cm</li>
+                        <li style="margin-bottom: 4px; display: flex; align-items: center;">
+                            <span style="font-weight: bold; color: #2c3e50; width: 20px;">L:</span> 
+                            <span style="background-color: #e8f6f3; padding: 2px 6px; border-radius: 4px; color: #16a085;">
+                                {{ sample.petal_length }} cm
+                            </span>
+                        </li>
+                        <li style="display: flex; align-items: center;">
+                            <span style="font-weight: bold; color: #2c3e50; width: 20px;">W:</span> 
+                            <span style="background-color: #fef9e7; padding: 2px 6px; border-radius: 4px; color: #d4ac0d;">
+                                {{ sample.petal_width }} cm
+                            </span>
+                        </li>
                     </ul>
                 </td>
                 <td>{{ sample.lab.name|default:"N/A" }}</td>
@@ -111,7 +160,10 @@
 {% endif %}
 
 <div class="div-section" style="margin-top: 30px;">
-    <h2>📈 Statistics</h2>
+    <h2 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <img src="{% static 'images/bar-chart.png' %}" alt="Actions Icon" style="width: 28px; height: 28px;" onerror="this.style.display='none'">
+        Statistics
+    </h2>
     <ul>
         <li><strong>Total Iris Samples:</strong> {{ total_count }}</li>
         <li><strong>Your Records:</strong> {{ user.irisplant_set.count }}</li>
@@ -124,7 +176,10 @@
 </div>
 
 <div class="div-section">
-    <h2>🔗 Quick Links</h2>
+    <h2 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <img src="{% static 'images/hyperlink.png' %}" alt="Actions Icon" style="width: 28px; height: 28px;" onerror="this.style.display='none'">
+        Quick Links
+    </h2>
     <ol>
         {% if is_editor %}
             <li><a href="{% url 'iris_create' %}">Add New Iris Sample</a></li>

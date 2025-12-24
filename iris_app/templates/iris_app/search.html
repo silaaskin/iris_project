@@ -4,8 +4,8 @@
 {% block title %}Advanced Search - Iris System{% endblock %}
 
 {% block content %}
-<img src="{% static 'images/search.png' %}" alt="Ara" style="width: 40px; vertical-align: middle;">
-<h1> Advanced Search</h1>
+<img src="{% static 'images/searchs.png' %}" alt="Ara" style="width: 40px; vertical-align: middle;">
+<h1>Advanced Search</h1>
 
 <div class="div-info">
     <h3>Search Iris Samples</h3>
@@ -71,8 +71,8 @@
             </div>
 
             <div class="btn-group" style="margin-top: 20px;">
-                <button type="submit" class="btn btn-success">🔎 Search</button>
-                <a href="{% url 'iris_search' %}" class="btn">🔄 Clear</a>
+                <button type="submit" class="btn btn-success">Search</button>
+                <a href="{% url 'iris_search' %}" class="btn">Clear</a>
             </div>
         </form>
     </div>
@@ -83,7 +83,7 @@
     <div style="margin-top: 30px;">
         {% if results %}
             <div class="div-success">
-                <h2>✅ Results ({{ result_count }})</h2>
+                <h2>Results ({{ result_count }})</h2>
                 <p>Found {{ result_count }} Iris samples matching your search criteria.</p>
             </div>
 
@@ -117,7 +117,7 @@
             </table>
         {% else %}
             <div class="div-danger">
-                <h2>❌ No Results Found</h2>
+                <h2> No Results Found</h2>
                 <p>No Iris samples match your search criteria. Please try different search parameters.</p>
                 <a href="{% url 'iris_search' %}" class="btn" style="margin-top: 10px;">Clear Search</a>
             </div>
@@ -126,12 +126,19 @@
 {% else %}
     <div style="margin-top: 30px;">
         <div class="div-highlight">
-            <h3>💡 Information</h3>
+            <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+    <img src="{% static 'images/light-bulb.png' %}" alt="Idea Icon" style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+    Information
+</h3>
+            
             <p>To search, please fill in at least one field and click the "Search" button.</p>
         </div>
 
         <div class="div-section" style="margin-top: 20px;">
-            <h3>📊 Search Examples</h3>
+            <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+    <img src="{% static 'images/logo.png' %}" alt="Info" style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+    Search Examples
+</h3>
             <ul>
                 <li><strong>Find all Setosa:</strong> Select "Iris Setosa" in Species field</li>
                 <li><strong>Find large flowers:</strong> Set Min Petal Length to 5.0</li>
@@ -144,7 +151,10 @@
 
 <!-- QUICK LINKS -->
 <div class="div-section" style="margin-top: 30px;">
-    <h2>🔗 Quick Links</h2>
+    <h2 style="display: flex; align-items: center; gap: 10px; margin-top: 0;">
+    <img src="{% static 'images/hyperlink.png' %}" alt="Idea Icon" style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+    Quick Links
+</h2>
     <ol>
         <li><a href="{% url 'iris_list' %}">View All Iris Samples</a></li>
         <li><a href="{% url 'iris_create' %}">Add New Iris Sample</a></li>

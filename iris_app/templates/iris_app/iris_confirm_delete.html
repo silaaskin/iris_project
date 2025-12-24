@@ -8,7 +8,7 @@
 <div style="max-width: 500px; margin: 50px auto;">
     <div class="card">
         <div class="card-header">
-            <h1 style="margin: 0; color: var(--danger);">⚠️ Are you sure?</h1>
+            <h1 style="margin: 0; color: var(--danger);">Are you sure?</h1>
         </div>
 
         <div class="card-body">
@@ -29,8 +29,8 @@
             <form method="POST" novalidate>
                 {% csrf_token %}
                 <div class="btn-group" style="margin-top: 20px;">
-                    <button type="submit" class="btn btn-danger">🗑️ Yes, Delete It</button>
-                    <a href="{% url 'iris_detail' plant.pk %}" class="btn">❌ Cancel</a>
+                    <button type="submit" class="btn btn-danger"> Yes, Delete It</button>
+                    <a href="{% url 'iris_detail' plant.pk %}" class="btn"> Cancel</a>
                 </div>
             </form>
         </div>
