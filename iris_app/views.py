@@ -306,8 +306,7 @@ def export_iris_csv(request):
     response.write('\ufeff')
     
     writer = csv.writer(response)
-    writer.writerow(['Species', 'Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width', 'Laboratory', 'Date'])
-    
+    writer.writerow(['species', 'sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'lab_id', 'date'])    
     for plant in IrisPlant.objects.all().select_related('lab'):
         lab_name = plant.lab.name if plant.lab else "N/A"
         species_display = plant.get_species_display()
